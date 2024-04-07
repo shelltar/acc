@@ -458,7 +458,7 @@ print_update() {
 }
 
 print_W() {
-  echo " Watts"
+  echo " Watt(s)"
 }
 
 print_V() {

@@ -25,7 +25,7 @@ logf() {
       [ -f $file ] && ln -sf $file ./ && break
     done
 
-    ln -sf $dataDir/logs/* /sdcard/Download/acc-t_*.log ./ 2>/dev/null
+    ln -sf $dataDir/logs/* ./ 2>/dev/null
     grep -Ev '^#|^$' $config_ > ./config.txt
     set +x
 

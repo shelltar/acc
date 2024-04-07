@@ -24,7 +24,6 @@ max_charging_voltage=${maxChargingVoltage[0]}
 
 max_temp=${temperature[1]}
 resume_temp=${temperature[2]}
-max_temp_pause=${temperature[2]%r}
 
 off_mid=$offMid
 pause_capacity=${capacity[3]}
@@ -42,18 +41,19 @@ temp_level=$tempLevel
 thermal_suspend=$thermalSuspend
 volt_factor=$voltFactor
 
-apply_on_boot=${applyOnBoot[@]}
+apply_on_boot=\"${applyOnBoot[@]}\"
 
-apply_on_plug=${applyOnPlug[@]}
+apply_on_plug=\"${applyOnPlug[@]}\"
 
-batt_status_override=$battStatusOverride
+batt_status_override=\"$battStatusOverride\"
 
-charging_switch=${chargingSwitch[@]}
+charging_switch=\"${chargingSwitch[@]}\"
 
-idle_apps=${idleApps[@]}
+idle_apps=\"${idleApps[@]}\"
 
-run_cmd_on_pause=$runCmdOnPause
+run_cmd_on_pause=\"$runCmdOnPause\"
 
-loop_cmd=" #legacy, AccSettings
+loop_cmd=:
+max_temp_pause=60"
 
 [ "${1-.}" = ns ] || sed -n 's/^:/\n:/p' $config

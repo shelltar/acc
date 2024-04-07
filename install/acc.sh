@@ -327,6 +327,7 @@ case "${1-}" in
     pause_capacity=$1
     resume_capacity=${2:-5000}
     . $execDir/write-config.sh
+    echo "✅"
   ;;
 
   -b|--rollback)
@@ -464,6 +465,7 @@ case "${1-}" in
   -R|--resetbs)
     dumpsys batterystats --reset
     rm -rf /data/system/battery*stats* 2>/dev/null || :
+    echo "✅"
   ;;
 
   -sc)
@@ -680,6 +682,7 @@ case "${1-}" in
   -U|--uninstall)
     set +eu
     /system/bin/sh $execDir/uninstall.sh
+    echo "✅"
   ;;
 
   -v|--version)

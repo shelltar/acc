@@ -595,7 +595,6 @@ else
 
   # prepare executables
 
-  #legacy
   ln -fs $execDir/${id}.sh /dev/$id
   ln -fs $execDir/${id}.sh /dev/${id}d,
   ln -fs $execDir/${id}.sh /dev/${id}d.

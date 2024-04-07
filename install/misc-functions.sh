@@ -24,9 +24,12 @@ apply_on_boot() {
       default=${3:-${2-}}
     fi
     [ $arg = default ] && oppositeValue="$value" || oppositeValue="$default"
-    write \$$arg $file 0 || :
+    set +e
+    write \$$arg $file 0 &
+    set -e
   done
 
+  wait
   $exitCmd && [ $arg = value ] && exit 0 || :
 }
 
@@ -49,8 +52,12 @@ apply_on_plug() {
     value=${2-}
     default=${3:-${2-}}
     [ $arg = default ] && oppositeValue="$value" || oppositeValue="$default"
-    write \$$arg $file 0 || :
+    set +e
+    write \$$arg $file 0 &
+    set -e
   done
+
+  wait
 }
 
 
@@ -121,7 +128,7 @@ disable_charging() {
 
   local autoMode=true
 
-  not_charging || {
+  # not_charging || {
 
     ! tt "${chargingSwitch[*]-}" "*--" || autoMode=false
 
@@ -148,7 +155,7 @@ disable_charging() {
 
     (set +eux; eval '${runCmdOnPause-}') || :
     chDisabledByAcc=true
-  }
+  # }
 
   if [ -n "${1-}" ]; then
     case $1 in
@@ -194,7 +201,7 @@ disable_charging() {
 
 enable_charging() {
 
-  ! not_charging || {
+  # ! not_charging || {
 
     [ ! -f $TMPDIR/.sw ] || (. $TMPDIR/.sw; rm $TMPDIR/.sw; flip_sw on) 2>/dev/null || :
 
@@ -219,7 +226,7 @@ enable_charging() {
     fi
 
     chDisabledByAcc=false
-  }
+  # }
 
   set_temp_level
 
@@ -413,6 +420,7 @@ wait_plug() {
 
 write() {
   local i=y
+  local seq=5
   local f=$dataDir/logs/write.log
   blacklisted=false
   if [ -f "$2" ] && chown 0:0 $2 && chmod 0644 $2; then
@@ -435,10 +443,13 @@ write() {
     [ -n "${swValue-}" ] && swValue="$swValue, $f" || swValue="$f"
   fi
   [ $i = x ] && return ${3-1} || {
-    # for i in 1 2 3; do
-    #   [ $i -eq 1 ] || usleep 330000
-      eval "echo $1 > $2" || :
-    # done
+    for i in $(seq $seq); do
+      if eval "echo $1 > $2"; then
+        [ $i -eq $seq ] || usleep $((1000000 / $seq))
+      else
+        return 1
+      fi
+    done
     chmod 0444 $2
   }
 }
