@@ -30,6 +30,7 @@ set_prop() {
         || set_ch_volt "${mcv:-${max_charging_voltage:--}}" || :
 
       [ -z "${tl-}${temp_level-}" ] || set_temp_level ${tl:-$temp_level}
+      echo "✅"
     ;;
 
     # reset config
@@ -113,8 +114,13 @@ set_prop() {
 
     # print current config (full)
     *)
-      . $execDir/print-config.sh | more
-      return 0
+      if [ -f "${1:-//}" ]; then
+        cat "$1" > $config
+        $TMPDIR/acca --set dummy=
+      else
+        . $execDir/print-config.sh | more
+        return 0
+      fi
     ;;
 
   esac
