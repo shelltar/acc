@@ -1,4 +1,4 @@
-configVerCode=202403160
+configVerCode=202404070
 
 allowIdleAbovePcap=true
 ampFactor=
@@ -17,7 +17,7 @@ rebootResume=false
 resetBattStats=(false false false)
 temperature=(35 50 45 55)
 tempLevel=0
-thermalSuspend=mi_thermald
+thermalSuspend=thermal
 voltFactor=
 
 applyOnBoot=()
@@ -530,9 +530,9 @@ runCmdOnPause=''
 
 # thermal_suspend (ts) #
 #
-# Type: String (*thermal* | full)
-# Default: mi_thermald
+# Type: String (mi_thermald | thermal | full)
+# Default: thermal
 #
-# [Some] thermal management processes interfere with charging control.
+# Certain thermal management processes interfere with charging control.
 # This variable controls which of these get temporarily suspended after pausing charging (comma-separated list).
-# To keep all thermal management programs frozen at ALL times, use the value "full".
+# Usage examples: mi_thermald, thermal (anything containing that string) or full (to keep all thermal management frozen at all times, as long as accd is running).

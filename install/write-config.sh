@@ -87,7 +87,7 @@ rebootResume=${rr:-false}
 resetBattStats=(${rbsp:-false} ${rbsu:-false} ${rbspl:-false})
 temperature=(${ct:-35} ${mt:-50} ${rt:-45} ${st:-55})
 tempLevel=${tl:-0}
-thermalSuspend=${ts:-mi_thermald}
+thermalSuspend=${ts:-thermal}
 voltFactor=$vf
 
 applyOnBoot=($ab)
