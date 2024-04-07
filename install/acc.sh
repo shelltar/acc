@@ -230,7 +230,11 @@ parse_switches() {
 
 
 rollback() {
-  rm -rf $execDir/*
+  print_wait
+  for i in $execDir/*; do
+    [[ $i = */system ]] || rm -rf $i
+  done
+  rm -rf $dataDir/backup/system
   cp -a $dataDir/backup/* $execDir/
   if [ .${1-} = .c ]; then
     mv -f $execDir/config.txt $config
@@ -238,6 +242,8 @@ rollback() {
     rm $execDir/config.txt
   fi
   $execDir/service.sh --init
+  printf "✅ "
+  sed -n 's/^version=//p' $execDir/module.prop
 }
 
 
