@@ -94,15 +94,15 @@ case "$@" in
 
     export "$@"
 
-    [ .${mcc-${max_charging_current-x}} = .x ] || {
-      . $execDir/set-ch-curr.sh
-      set_ch_curr ${mcc:-${max_charging_current:--}} || :
-    }
+    # [ .${mcc-${max_charging_current-x}} = .x ] || {
+    #   . $execDir/set-ch-curr.sh
+    #   set_ch_curr ${mcc:-${max_charging_current:--}} || :
+    # }
 
-    [ ".${mcv-${max_charging_voltage-x}}" = .x ] || {
-      . $execDir/set-ch-volt.sh
-      set_ch_volt "${mcv:-${max_charging_voltage:--}}" || :
-    }
+    # [ ".${mcv-${max_charging_voltage-x}}" = .x ] || {
+    #   . $execDir/set-ch-volt.sh
+    #   set_ch_volt "${mcv:-${max_charging_voltage:--}}" || :
+    # }
 
     . $execDir/write-config.sh
     exit 0
