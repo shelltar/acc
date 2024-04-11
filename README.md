@@ -237,7 +237,7 @@ In interactive mode, it also asks the user whether they want to download and ins
 ```
 #DC#
 
-configVerCode=202404070
+configVerCode=202404110
 
 allowIdleAbovePcap=true
 ampFactor=
@@ -256,7 +256,6 @@ rebootResume=false
 resetBattStats=(false false false)
 temperature=(35 50 45 55)
 tempLevel=0
-thermalSuspend=thermal
 voltFactor=
 
 applyOnBoot=()
@@ -304,7 +303,6 @@ runCmdOnPause=''
 # runCmdOnPause='COMMAND...'
 # temperature=(cooldown_temp=ºC max_temp=ºC resume_temp=ºC shutdown_temp=ºC)
 # tempLevel=%
-# thermalSuspend="comma-separated patterns matching thermal management processes"
 # voltFactor=1000|1000000
 
 
@@ -412,7 +410,6 @@ runCmdOnPause=''
 # shutdown_capacity sc
 # shutdown_temp st
 # temp_level tl
-# thermal_suspend ts
 # volt_factor vf
 
 
@@ -527,7 +524,7 @@ runCmdOnPause=''
 #
 # Certain switches tend to be problematic/unreliable under specific condition (e.g., screen off, fast charging, heavy load).
 # Sometimes, this is caused by rogue thermal management programs (e.g., mi_thermald).
-# To mitigate this, one may try thermal_suspend and/or force_off.
+# To mitigate this, one may want to try force_off or a thermal mod.
 
 
 # cooldown_capacity (cc) #
@@ -602,7 +599,6 @@ runCmdOnPause=''
 #
 # Enable this only as last resort, if the set charging switch is stubbornly reset by the system.
 # Oftentimes, userspace thermal management daemons (e.g., mi_thermald) and/or driver bugs are behind charging control issues.
-# Try this feature if thermal management approaches such as thermal_suspend don't help.
 
 
 # idle_apps (ia) #
@@ -765,16 +761,6 @@ runCmdOnPause=''
 # At the highest level, charging current is blocked.
 # The stock values are generally integers, ranging from 0 to 6, 7 or so. siop_level (Samsung) ranges from 0 to 100).
 # For greater flexibility, this variable stores a percentage value, which is internally mapped to the system's scales.
-
-
-# thermal_suspend (ts) #
-#
-# Type: String (mi_thermald | thermal | full)
-# Default: thermal
-#
-# Certain thermal management processes interfere with charging control.
-# This variable controls which of these get temporarily suspended after pausing charging (comma-separated list).
-# Usage examples: mi_thermald, thermal (anything containing that string) or full (to keep all thermal management frozen at all times, as long as accd is running).
 
 #/DC#
 ```

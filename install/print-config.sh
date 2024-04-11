@@ -38,7 +38,6 @@ resume_capacity=${capacity[2]}
 shutdown_capacity=${capacity[0]}
 shutdown_temp=${temperature[3]}
 temp_level=$tempLevel
-thermal_suspend=$thermalSuspend
 volt_factor=$voltFactor
 
 apply_on_boot=\"${applyOnBoot[@]}\"

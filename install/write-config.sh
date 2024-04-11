@@ -38,7 +38,6 @@ s="${charging_switch-${s-${chargingSwitch[@]}}}"
 sc=${shutdown_capacity-${sc-${capacity[0]}}}
 st=${shutdown_temp-${st-${temperature[3]}}}
 tl="${temp_level-${tl-$tempLevel}}"
-ts="${thermal_suspend-${ts-$thermalSuspend}}"
 vf=${volt_factor-${vf-$voltFactor}}
 
 
@@ -87,7 +86,6 @@ rebootResume=${rr:-false}
 resetBattStats=(${rbsp:-false} ${rbsu:-false} ${rbspl:-false})
 temperature=(${ct:-35} ${mt:-50} ${rt:-45} ${st:-55})
 tempLevel=${tl:-0}
-thermalSuspend=${ts:-thermal}
 voltFactor=$vf
 
 applyOnBoot=($ab)

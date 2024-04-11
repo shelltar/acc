@@ -279,12 +279,6 @@ flip_sw() {
   local off=
   local oppositeValue=
 
-  if [ $flip = on ]; then
-    pkill_thermal -CONT
-  else
-    pkill_thermal -STOP
-  fi 2>/dev/null
-
   set -- ${chargingSwitch[@]-}
   [ -f ${1:-//} ] || return 2
   swValue=
@@ -362,13 +356,6 @@ parse_value() {
   else
     echo "$1" | sed 's/::/ /g'
   fi
-}
-
-
-pkill_thermal() {
-  local thermalSuspend="${thermalSuspend//,/|}"
-  [[ ".$thermalSuspend" = *thermal* ]] || return 0
-  pkill $1 -f "$thermalSuspend" || :
 }
 
 

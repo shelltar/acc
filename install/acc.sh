@@ -513,7 +513,6 @@ case "${1-}" in
     parsed=
     exitCode_=10
     exitCode=$exitCode_
-    thermalSuspend=thermal
     logF=/sdcard/Download/acc-t_output-${device}_$(date +%Y-%m-%d_%H:%M:%S).log
 
     shift

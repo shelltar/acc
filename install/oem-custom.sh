@@ -7,11 +7,11 @@ if (set +x; . $config) >/dev/null 2>&1; then
   configVer=0$(_get_prop configVerCode)
   defaultConfVer=0$(cat $TMPDIR/.config-ver)
   [ $configVer -eq $defaultConfVer ] || {
-    if [ $configVer -lt 202404070 ]; then
-      $TMPDIR/acca --set thermal_suspend=
-    else
+    # if [ $configVer -lt 202404070 ]; then
+    #   $TMPDIR/acca --set thermal_suspend=
+    # else
       $TMPDIR/acca --set dummy=
-    fi
+    # fi
   }
 else
   cat $execDir/default-config.txt > $config
