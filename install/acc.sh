@@ -388,12 +388,12 @@ case "${1-}" in
     # additional options
     _extra=false
     case "${2-}" in
-      [0-9]*) [[ ".${3-}" != .-* ]] || { shift 3; _extra=true; };;
-      -*) shift 2; _extra=true;;
+      [0-9]*) [[ ".${3-}" != .-* ]] || { shift 2; _extra=true; };;
+      -*) shift 1; _extra=true;;
     esac
-    ! $_extra || { (. $config; export "$@"; . $execDir/write-config.sh); }
+    ! $_extra || eval $TMPDIR/acca $config "$@"
 
-    echo ':; online || exec $TMPDIR/accd' >> $config
+    print '\n:; online || exec $TMPDIR/accd' >> $config
     print_charging_enabled_until ${_two}%
     echo
     exec $TMPDIR/accd $config

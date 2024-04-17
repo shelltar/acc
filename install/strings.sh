@@ -153,7 +153,7 @@ Options
       acc -e 30m (recharge for 30 minutes)
       acc -e 4000mv (recharge to 4000mV)
 
-  -f|--force|--full [capacity] [-s | --set ...]   Charge once to a given capacity (default: 100%), without restrictions
+  -f|--force|--full [capacity] [additional opts/args]   Charge once to a given capacity (default: 100%), without restrictions
     e.g.,
       acc -f 95 (charge to 95%)
       acc -f (charge to 100%)

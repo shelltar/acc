@@ -451,7 +451,7 @@ loopDelay=(3 9)
 execDir=/data/adb/$domain/acc
 export TMPDIR=/dev/.vr25/acc
 dataDir=/data/adb/$domain/${id}-data
-config=$dataDir/config.txt
+: ${config:=$dataDir/config.txt}
 config_=$config
 
 [ -f $TMPDIR/.ghost-charging ] \

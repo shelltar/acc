@@ -38,7 +38,7 @@ set -eu
 
 execDir=/data/adb/vr25/acc
 dataDir=/data/adb/vr25/acc-data
-config=$dataDir/config.txt
+: ${config:=$dataDir/config.txt}
 defaultConfig=$execDir/default-config.txt
 
 export TMPDIR=/dev/.vr25/acc
