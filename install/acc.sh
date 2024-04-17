@@ -170,8 +170,8 @@ exxit() {
   local exitCode=$?
   set +eux
   ! ${noEcho:-false} && ${verbose:-true} && echo
-  tt "$exitCode" "[05689]" || {
-    tt "$exitCode" "[127]|10" && logf --export
+  [[ "$exitCode" = [05689] ]] || {
+     eq "$exitCode" "[127]|10" && logf --export
     echo
   }
   cd /
@@ -263,7 +263,7 @@ defaultConfig=$execDir/default-config.txt
 . $execDir/logf.sh
 . $execDir/misc-functions.sh
 
-if [ "${1:-y}" = -x ] || tt "${2-}" "p|parse"; then
+if [ "${1:-y}" = -x ] ||  eq "${2-}" "p|parse"; then
   log=/sdcard/Download/acc-${device}.log
   [ $1 != -x ] || shift
 else
@@ -271,7 +271,7 @@ else
 fi
 
 # verbose
-if ${verbose:-true} && ! tt "${1-}" "-l*|--log*|-w*|--watch*"; then
+if ${verbose:-true} && !  eq "${1-}" "-l*|--log*|-w*|--watch*"; then
   [ -z "${LINENO-}" ] || export PS4='$LINENO: '
   touch $log
   [ $(du -k $log | cut -f 1) -ge 256 ] && : > $log
@@ -287,7 +287,7 @@ accVerCode=$(get_prop versionCode $execDir/module.prop)
 unset -f get_prop
 
 misc_stuff "${1-}"
-! tt "${1-}" "*/*" || shift
+[[ "${1-}" != */* ]] || shift
 
 . $config
 
@@ -309,7 +309,7 @@ grep -q .. $execDir/translations/$language/README.html 2>/dev/null \
 # aliases/shortcuts
 # daemon_ctrl status (acc -D|--daemon): "accd,"
 # daemon_ctrl stop (acc -D|--daemon stop): "accd."
-! tt "$0" "*accd*" || {
+[[ "$0" != *accd* ]] || {
   case $0 in
     *accd.) daemon_ctrl stop;;
     *) daemon_ctrl;;
@@ -332,7 +332,7 @@ case "${1-}" in
     echo "✅"
   ;;
 
-  -b|--rollback)
+  -b*|--rollback*)
     rollback "${*-}"
   ;;
 
@@ -568,7 +568,7 @@ case "${1-}" in
     grep '^chargingSwitch=' $config; } | tee $logF
 
     if [ -z "${2-}" ]; then
-      ! tt "${1-}" "p|parse" || parsed=$TMPDIR/.parsed
+      !  eq "${1-}" "p|parse" || parsed=$TMPDIR/.parsed
       [ -z "$parsed" ] || {
         _parsed=$dataDir/logs/parsed.log
         if parse_switches > $parsed; then

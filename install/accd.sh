@@ -19,46 +19,46 @@ if ! $init; then
 
 
   _ge_cooldown_cap() {
-    if t ${capacity[1]} -gt 3000; then
-      t $(volt_now) -ge ${capacity[1]}
+    if [ ${capacity[1]} -gt 3000 ]; then
+      [ $(volt_now) -ge ${capacity[1]} ]
     else
-      t $(cat $battCapacity) -ge ${capacity[1]}
+      [ $(cat $battCapacity) -ge ${capacity[1]} ]
     fi
   }
 
 
   _ge_pause_cap() {
-    if t ${capacity[3]} -gt 3000; then
-      t $(volt_now) -ge ${capacity[3]}
+    if [ ${capacity[3]} -gt 3000 ]; then
+      [ $(volt_now) -ge ${capacity[3]} ]
     else
-      t $(cat $battCapacity) -ge ${capacity[3]}
+      [ $(cat $battCapacity) -ge ${capacity[3]} ]
     fi
   }
 
 
   _le_pause_cap() {
-    if t ${capacity[3]} -gt 3000; then
-      t $(volt_now) -le ${capacity[3]}
+    if [ ${capacity[3]} -gt 3000 ]; then
+      [ $(volt_now) -le ${capacity[3]} ]
     else
-      t $(cat $battCapacity) -le ${capacity[3]}
+      [ $(cat $battCapacity) -le ${capacity[3]} ]
     fi
   }
 
 
   _lt_pause_cap() {
-    if t ${capacity[3]} -gt 3000; then
-      t $(volt_now) -lt ${capacity[3]}
+    if [ ${capacity[3]} -gt 3000 ]; then
+      [ $(volt_now) -lt ${capacity[3]} ]
     else
-      t $(cat $battCapacity) -lt ${capacity[3]}
+      [ $(cat $battCapacity) -lt ${capacity[3]} ]
     fi
   }
 
 
   _gt_resume_cap() {
-    if t ${capacity[2]} -gt 3000; then
-      t $(volt_now) -gt ${capacity[2]}
+    if [ ${capacity[2]} -gt 3000 ]; then
+      [ $(volt_now) -gt ${capacity[2]} ]
     else
-      t $(cat $battCapacity) -gt ${capacity[2]}
+      [ $(cat $battCapacity) -gt ${capacity[2]} ]
     fi
   }
 
@@ -66,19 +66,19 @@ if ! $init; then
   _le_resume_cap() {
     if $mtReached && _lt_pause_cap; then
       return 0
-    elif t ${capacity[2]} -gt 3000; then
-      t $(volt_now) -le ${capacity[2]}
+    elif [ ${capacity[2]} -gt 3000 ]; then
+      [ $(volt_now) -le ${capacity[2]} ]
     else
-      t $(cat $battCapacity) -le ${capacity[2]}
+      [ $(cat $battCapacity) -le ${capacity[2]} ]
     fi
   }
 
 
   _le_shutdown_cap() {
-    if t ${capacity[0]} -gt 3000; then
-      t $(volt_now) -le ${capacity[0]}
+    if [ ${capacity[0]} -gt 3000 ]; then
+      [ $(volt_now) -le ${capacity[0]} ]
     else
-      t $(cat $battCapacity) -le ${capacity[0]}
+      [ $(cat $battCapacity) -le ${capacity[0]} ]
     fi
   }
 
@@ -112,7 +112,7 @@ if ! $init; then
     apply_on_plug default
     tempLevel=0
     enable_charging
-    if tt "$exitCode" "[127]"; then
+    if [[ "$exitCode" = [127] ]]; then
       . $execDir/logf.sh
       logf --export
       notif "⚠️ Daemon stopped with exit code $exitCode! Run \"acc -l tail\" to see the last 10 lines of the log file."
@@ -137,7 +137,7 @@ if ! $init; then
     else
       isCharging=true
       # [auto mode] change the charging switch if charging has not been enabled by acc (if behavior repeats 3 times)
-      if $chDisabledByAcc && [ -n "${chargingSwitch[0]-}" ] && ! tt "${chargingSwitch[*]}" "*--" \
+      if $chDisabledByAcc && [ -n "${chargingSwitch[0]-}" ] && [[ "${chargingSwitch[*]}" != *\ -- ]] \
         && sleep ${loopDelay[1]} && { ! not_charging || { isCharging=false; false; }; }
       then
         if [ $unsolicitedResumes -ge 3 ]; then
@@ -145,7 +145,7 @@ if ! $init; then
             sed -i "\|^${chargingSwitch[*]}$|d" $TMPDIR/ch-switches
             echo "${chargingSwitch[*]}" >> $TMPDIR/ch-switches
           fi
-          $TMPDIR/acca --set charging_switch=
+          $TMPDIR/acca $config --set charging_switch=
           chargingSwitch=()
           unsolicitedResumes=0
         else
@@ -185,10 +185,10 @@ if ! $init; then
       if [ -f $TMPDIR/.ch-curr-read ]; then
         # set charging current control files, as needed
         if [ -n "${maxChargingCurrent[0]-}" ] \
-          && { [ -z "${maxChargingCurrent[1]-}" ] || tt "${maxChargingCurrent[1]-}" "-*"; } \
+          && { [ -z "${maxChargingCurrent[1]-}" ] || [[ "${maxChargingCurrent[1]-}" = -* ]]; } \
           && grep -q / $TMPDIR/ch-curr-ctrl-files 2>/dev/null
         then
-          $TMPDIR/acca --set max_charging_current=${maxChargingCurrent[0]}
+          $TMPDIR/acca $config --set max_charging_current=${maxChargingCurrent[0]}
         fi
       else
         # parse charging current ctrl files
@@ -197,10 +197,10 @@ if ! $init; then
 
        # set charging voltage control files, as needed
       if [ -n "${maxChargingVoltage[0]-}" ] \
-        && { [ -z "${maxChargingVoltage[1]-}" ] || tt "${maxChargingVoltage[1]-}" "-*"; } \
+        && { [ -z "${maxChargingVoltage[1]-}" ] || [[ "${maxChargingCurrent[1]-}" = -* ]]; } \
         && grep -q / $TMPDIR/ch-volt-ctrl-files 2>/dev/null
       then
-        $TMPDIR/acca --set max_charging_voltage=${maxChargingVoltage[0]}
+        $TMPDIR/acca $config --set max_charging_voltage=${maxChargingVoltage[0]}
       fi
 
       $cooldown || {
@@ -369,12 +369,12 @@ if ! $init; then
           if [ ${capacity[0]} -ge 1 ]; then
             # warnings
             ! $shutdownWarnings || {
-              if t ${capacity[0]} -gt 3000; then
-                ! t $(grep -o '^..' $voltNow) -eq $(( ${capacity[0]%??} + 1 )) \
+              if [ ${capacity[0]} -gt 3000 ]; then
+                ! [ $(grep -o '^..' $voltNow) -eq $(( ${capacity[0]%??} + 1 )) ] \
                   || ! notif "⚠️ WARNING: ~100mV to auto shutdown, plug the charger!" \
                     || sleep ${loopDelay[1]}
               else
-                ! t $(cat $battCapacity) -eq $(( ${capacity[0]} + 5 )) \
+                ! [ $(cat $battCapacity) -eq $(( ${capacity[0]} + 5 )) ] \
                   || ! notif "⚠️ WARNING: 5% to auto shutdown, plug the charger!" \
                     || sleep ${loopDelay[1]}
               fi
@@ -419,7 +419,7 @@ if ! $init; then
     local curr=
     . $config
     while [ -z "${dischargePolarity-}" ] && [ $currFile != $TMPDIR/.dummy-curr ] && $battStatusWorkaround; do
-      cmd="$TMPDIR/acca --set discharge_polarity="
+      cmd="$TMPDIR/acca $config --set discharge_polarity="
       curr=$(cat $currFile)
       if online; then
         if [ $(cat $battStatus) = Charging ] && [ ${curr#-} -gt $idleThreshold ]; then

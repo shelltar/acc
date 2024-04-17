@@ -25,8 +25,8 @@ daemon_ctrl() {
 }
 
 
-# extended test
-tt() {
+# condensed "case...esac"
+eq() {
   eval "case \"$1\" in
     $2) return 0;;
   esac"
@@ -50,13 +50,11 @@ cd /sys/class/power_supply/
 mkdir -p $dataDir
 
 # custom config path
-case "${1-}" in
-  */*)
-    [ -f $1 ] || cp $config $1
-    config=$1
-    shift
-  ;;
-esac
+! eq "${1-}" "*/*" || {
+  [ -f $1 ] || cp $config $1
+  config=$1
+  shift
+}
 
 
 case "$@" in
@@ -94,15 +92,15 @@ case "$@" in
 
     export "$@"
 
-    # [ .${mcc-${max_charging_current-x}} = .x ] || {
-    #   . $execDir/set-ch-curr.sh
-    #   set_ch_curr ${mcc:-${max_charging_current:--}} || :
-    # }
+    [ .${mcc-${max_charging_current-x}} = .x ] || {
+      . $execDir/set-ch-curr.sh
+      set_ch_curr ${mcc:-${max_charging_current:--}} || :
+    }
 
-    # [ ".${mcv-${max_charging_voltage-x}}" = .x ] || {
-    #   . $execDir/set-ch-volt.sh
-    #   set_ch_volt "${mcv:-${max_charging_voltage:--}}" || :
-    # }
+    [ ".${mcv-${max_charging_voltage-x}}" = .x ] || {
+      . $execDir/set-ch-volt.sh
+      set_ch_volt "${mcv:-${max_charging_voltage:--}}" || :
+    }
 
     . $execDir/write-config.sh
     exit 0

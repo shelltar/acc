@@ -7,7 +7,7 @@ idle_discharging() {
     +) [ $curNow -ge 0 ] && _status=Discharging || _status=Charging;;
     -) [ $curNow -lt 0 ] && _status=Discharging || _status=Charging;;
     *) [ $curThen = null ] || {
-         tt "$curThen,$curNow" "-*,[0-9]*|[0-9]*,-*" && _status=Discharging || _status=Charging
+          eq "$curThen,$curNow" "-*,[0-9]*|[0-9]*,-*" && _status=Discharging || _status=Charging
        };;
   esac
 }
@@ -23,7 +23,7 @@ not_charging() {
   local battStatusOverride="${battStatusOverride-}"
   local battStatusWorkaround=${battStatusWorkaround-}
 
-  tt "${chargingSwitch[$*]-}" "*\ --" || battStatusOverride=
+  [[ "${chargingSwitch[$*]-}" = *\ -- ]] || battStatusOverride=
 
   case "$currFile" in
     */current_now|*/?attery?verage?urrent) [ ${ampFactor:-$ampFactor_} -eq 1000 ] || idleThreshold=${idleThreshold}000;;
@@ -108,7 +108,7 @@ status() {
   _status=$(read_status)
 
   if [ -n "${battStatusOverride-}" ]; then
-    if tt "$battStatusOverride" "Discharging|Idle"; then
+    if  eq "$battStatusOverride" "Discharging|Idle"; then
       [ $(cat ${chargingSwitch[0]}) != ${chargingSwitch[2]} ] || _status=$battStatusOverride
     else
       _status=$(set -eu; eval '$battStatusOverride') || :

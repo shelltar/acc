@@ -11,7 +11,7 @@ apply_on_boot() {
 
   [ ${2:-x} != force ] || force=true
 
-  ! tt "${applyOnBoot[*]-}${maxChargingVoltage[*]-}" "*--exit*" || exitCmd=true
+  [[ "${applyOnBoot[*]-}${maxChargingVoltage[*]-}" != *--exit* ]] || exitCmd=true
 
   for entry in ${applyOnBoot[@]-} ${maxChargingVoltage[@]-}; do
     set -- ${entry//::/ }
@@ -130,9 +130,9 @@ disable_charging() {
 
   # not_charging || {
 
-    ! tt "${chargingSwitch[*]-}" "*--" || autoMode=false
+    [[ "${chargingSwitch[*]-}" != *\ -- ]] || autoMode=false
 
-    if tt "${chargingSwitch[0]-}" "*/*"; then
+    if [[ "${chargingSwitch[0]-}" = */* ]]; then
       if [ -f ${chargingSwitch[0]} ]; then
         if ! { flip_sw off && not_charging; }; then
           $isAccd || print_switch_fails "${chargingSwitch[@]-}"
@@ -312,7 +312,7 @@ invalid_switch() {
 
 is_android() {
   [ ! -d /data/usbmsc_mnt/ ] && [ -x /system/bin/dumpsys ] \
-    && ! tt "$(readlink -f $execDir)" "*com.termux*" \
+    && [[ "$(readlink -f $execDir)" != *com.termux* ]] \
     && pgrep -f zygote >/dev/null
 }
 
@@ -334,12 +334,10 @@ misc_stuff() {
   [ -f $config ] || cat $execDir/default-config.txt > $config
 
   # custom config path
-  case "${1-}" in
-    */*)
-      [ -f $1 ] || cp $config $1
-      config=$1
-    ;;
-  esac
+  ! eq "${1-}" "*/*" || {
+    [ -f $1 ] || cp $config $1
+    config=$1
+  }
   unset -f misc_stuff
 }
 
@@ -371,12 +369,8 @@ print_wait_plug() {
 }
 
 
-# test
-t() { test "$@"; }
-
-
-# extended test
-tt() {
+# condensed "case...esac"
+eq() {
   eval "case \"$1\" in
     $2) return 0;;
   esac"

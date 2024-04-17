@@ -64,7 +64,7 @@ printf "\n\n\n" >> $TMPDIR/.scripts
 
 
 # reset switch (in auto-mode) if pbim has changed and another switch is not being set
-! [[ "${chargingSwitch[*]}" != *-- && -z "$s0" && ".$pbim" != ".$prioritizeBattIdleMode" ]] || s=
+! [[ "${chargingSwitch[*]}" != *\ -- && -z "$s0" && ".$pbim" != ".$prioritizeBattIdleMode" ]] || s=
 
 
 echo "configVerCode=$(cat $TMPDIR/.config-ver)

@@ -116,7 +116,7 @@ set_prop() {
     *)
       if [ -f "${1:-//}" ]; then
         cat "$1" > $config
-        $TMPDIR/acca --set dummy=
+        $TMPDIR/acca $config --set dummy=
       else
         . $execDir/print-config.sh | more
         return 0

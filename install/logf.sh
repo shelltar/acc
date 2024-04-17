@@ -2,7 +2,7 @@ logf() {
 
   local date=$(date +%Y-%m-%d_%H:%M:%S)
 
-  if tt "${1:-x}" "-*e*"; then
+  if [[ "${1:-x}" = -*e* ]]; then
 
     mkdir -p $dataDir/logs
 
