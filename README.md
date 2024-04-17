@@ -821,7 +821,7 @@ Usage
 
 Options
 
-  -b[c | " c"]|--rollback[c | " c"]   Restore previous installation; "c" restores the config as well
+  -b|--rollback [nv]   Restore previous installation; with "n" flag, the config is not restored; with "v" flag, nothing is done other than printing the version that would have been restored
 
   -c|--config [[editor] [editor_opts] | g for GUI]   Edit config (default editor: nano/vim/vi)
     e.g.,

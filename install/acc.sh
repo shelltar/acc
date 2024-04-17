@@ -230,20 +230,22 @@ parse_switches() {
 
 
 rollback() {
-  print_wait
-  for i in $execDir/*; do
-    [[ $i = */system ]] || rm -rf $i
-  done
-  rm -rf $dataDir/backup/system
-  cp -a $dataDir/backup/* $execDir/
-  if [ .${1-} = .c ]; then
-    mv -f $execDir/config.txt $config
-  else
-    rm $execDir/config.txt
+  if [[ ".${*-}" != *v* ]]; then
+    print_wait
+    for i in $execDir/*; do
+      [[ $i = */system ]] || rm -rf $i
+    done
+    rm -rf $dataDir/backup/system
+    cp -a $dataDir/backup/* $execDir/
+    if [[ ".${*-}" = *n* ]]; then
+      rm $execDir/config.txt
+    else
+      mv -f $execDir/config.txt $config
+    fi
+    $execDir/service.sh --init
+    printf "✅ "
   fi
-  $execDir/service.sh --init
-  printf "✅ "
-  sed -n 's/^version=//p' $execDir/module.prop
+  sed -n 's/^versionCode=//p' $execDir/module.prop
 }
 
 
@@ -331,11 +333,7 @@ case "${1-}" in
   ;;
 
   -b|--rollback)
-    rollback
-  ;;
-
-   -bc|b\ c|--rollback|--rollback\ c)
-    rollback c
+    rollback "${*-}"
   ;;
 
   -c|--config)
