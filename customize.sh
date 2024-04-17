@@ -187,17 +187,19 @@ mkdir -p $tmpd
 ###
 ! $magisk || {
 
-  # create executable wrappers
+  # create executable wrappers to avoid rebooting unnecessarily
   mkdir -p $installDir/system/bin
 
   for i in ${id}.sh:$id ${id}.sh:${id}d, ${id}.sh:${id}d. ${id}a.sh:${id}a service.sh:${id}d; do
+    j=$installDir/system/bin/${i#*:}
+    [ ! -h $j ] || rm $j
     echo "#!/system/bin/sh
 #exec_wrapper
 if [ -f $tmpd/.updated ]; then
   exec /dev/${i#*:} \"\$@\"
 else
   exec . /data/adb/$domain/$id/${i%:*} \"\$@\"
-fi" > $installDir/system/bin/${i#*:}
+fi" > $j
   done
 }
 
@@ -302,7 +304,7 @@ _echo() {
 
 
 printf "\n\n"
-printf "$version ($versionCode) installed and running!\n\nRollback with acc -bc if not satisfied.\n\n" | tee $tmpd/.install-notes
+printf "$version ($versionCode) installed and running!\n\nRollback with acc -b if not satisfied.\n\n" | tee $tmpd/.install-notes
 if [ -x /sbin/${id}d ] || grep -q '#exec_wrapper' /system/bin/${id}d 2>/dev/null; then
   _echo "Rebooting is unnecessary."
 else
