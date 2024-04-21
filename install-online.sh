@@ -65,17 +65,21 @@ get_ver() { sed -n 's/^versionCode=//p' ${1:-}; }
 }
 
 
-if i=$(which curl) && [ "$(head -n 1 $i)" != "#!/system/bin/sh" ]; then
-  curl --help | grep '\-\-dns\-servers' >/dev/null && dns="--dns-servers 9.9.9.9,1.1.1.1" || dns=
-  _curl() {
-    curl $dns --progress-bar --insecure -L "$@"
-  }
-else
-  _curl() {
-    shift $(($# - 1))
-    PATH=${PATH#*/busybox:} /dev/.vr25/busybox/wget -O - --no-check-certificate $1
-  }
-fi
+set_dl() {
+  if [ ".${1-}" != .wget ] && i=$(which curl) && [ ".$(head -n 1 ${i:-//} 2>/dev/null || :)" != ".#!/system/bin/sh" ]; then
+    curl --help | grep '\-\-dns\-servers' >/dev/null && dns="--dns-servers 9.9.9.9,1.1.1.1" || dns=
+    _curl() {
+      curl $dns --progress-bar --insecure -L "$@" || { set_dl wget; _curl "$@"; }
+    }
+  else
+    _curl() {
+      shift $(($# - 1))
+      PATH=${PATH#*/busybox:} /dev/.vr25/busybox/wget -O - --no-check-certificate $1
+    }
+  fi
+}
+
+set_dl
 
 
 commit=$(echo "$*" | sed -E 's/%.*%|-c|--changelog|-f|--force|-n|--non-interactive| //g')

@@ -662,15 +662,18 @@ case "${1-}" in
         || chmod -R 0755 /data/adb/vr25/bin
     }
 
-    if i=$(which curl) && [ "$(head -n 1 $i)" != "#!/system/bin/sh" ]; then
-      curl --help | grep '\-\-dns\-servers' >/dev/null && dns="--dns-servers 9.9.9.9,1.1.1.1" || dns=
-      curl $dns --progress-bar --insecure -Lo \
-        $TMPDIR/install-online.sh https://raw.githubusercontent.com/VR-25/acc/$reference/install-online.sh
-    else
-      PATH=${PATH#*/busybox:} /dev/.vr25/busybox/wget -O $TMPDIR/install-online.sh --no-check-certificate \
-        https://raw.githubusercontent.com/VR-25/acc/$reference/install-online.sh
-    fi
+    dl() {
+      if [ ".${1-}" != .wget ] && i=$(which curl) && [ ".$(head -n 1 ${i:-//} 2>/dev/null || :)" != ".#!/system/bin/sh" ]; then
+        curl --help | grep '\-\-dns\-servers' >/dev/null && dns="--dns-servers 9.9.9.9,1.1.1.1" || dns=
+        curl $dns --progress-bar --insecure -Lo \
+          $TMPDIR/install-online.sh https://raw.githubusercontent.com/VR-25/acc/$reference/install-online.sh || dl wget
+      else
+        PATH=${PATH#*/busybox:} /dev/.vr25/busybox/wget -O $TMPDIR/install-online.sh --no-check-certificate \
+          https://raw.githubusercontent.com/VR-25/acc/$reference/install-online.sh
+      fi
+    }
 
+    dl
     trap - EXIT
     set +eu
     installDir=$(readlink -f $execDir)
