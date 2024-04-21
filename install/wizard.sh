@@ -84,9 +84,11 @@ z) $(print_exit)
     ;;
 
     8)
-      print_press_key
-      read -n 1
       set +eu
+      print_uninstall
+      echo yes/no
+      read ans
+      [ .$ans = .yes ] || exec wizard
       . $execDir/uninstall.sh
     ;;
 

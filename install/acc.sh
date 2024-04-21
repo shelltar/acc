@@ -678,6 +678,12 @@ case "${1-}" in
 
   -U|--uninstall)
     set +eu
+    ! ${verbose:-true} || {
+      print_uninstall
+      echo yes/no
+      read ans
+      [ .$ans = .yes ] || exit 0
+    }
     /system/bin/sh $execDir/uninstall.sh
     echo "✅"
   ;;
