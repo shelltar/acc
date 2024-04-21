@@ -245,7 +245,9 @@ rollback() {
     $execDir/service.sh --init
     printf "✅ "
   fi
-  sed -n 's/^versionCode=//p' $execDir/module.prop
+  i=$dataDir/backup/module.prop
+  [ -f $i ] || i=$execDir/module.prop
+  sed -n 's/^versionCode=//p' $i
 }
 
 
