@@ -114,21 +114,19 @@ status() {
       _status=$(set -eu; eval '$battStatusOverride') || :
     fi
   elif $battStatusWorkaround; then
-    if [ $_status != Idle ]; then
-      if [ "$switch" = off ] && { [ -n "${exitCode_-}" ] || ${cyclingSw:-false}; }; then
-        for i in $(seq $iti); do
-          curNow=$(cat $currFile)
-          idle_discharging
-          if [ $_status = Idle ]; then
-            [ $i -eq $iti ] || sleep 1
-          else
-            [ $sti -eq 0 ] || return1=true
-            break
-          fi
-        done
-      else
+    if [ "$switch" = off ] && { [ -n "${exitCode_-}" ] || ${cyclingSw:-false}; }; then
+      for i in $(seq $iti); do
+        curNow=$(cat $currFile)
         idle_discharging
-      fi
+        if [ $_status = Idle ]; then
+          [ $i -eq $iti ] || sleep 1
+        else
+          [ $sti -eq 0 ] || return1=true
+          break
+        fi
+      done
+    else
+      idle_discharging
     fi
   fi
 
@@ -160,7 +158,7 @@ if ${init:-false}; then
     batt=${f2%/*}
   else
     for batt in maxfg/capacity */capacity; do
-      if [ -f ${batt%/*}/status ] && [ -n "$(cat ${batt%/*}/uevent 2>/dev/null || :)" ]; then
+      if [ -f ${batt%/*}/status ]; then
         batt=${batt%/*}
         break
       fi
@@ -187,7 +185,7 @@ if ${init:-false}; then
 
   echo 0 > $TMPDIR/.dummy-curr
 
-  for currFile in $batt/current_now bms/current_now battery/?attery?verage?urrent \
+  for currFile in battery/current_now $batt/current_now bms/current_now battery/?attery?verage?urrent \
     /sys/devices/platform/battery/power_supply/battery/?attery?verage?urrent \
     ${battStatus%/*}/current_now $TMPDIR/.dummy-curr
   do
