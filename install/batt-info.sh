@@ -2,7 +2,7 @@ batt_info() {
 
   local i=
   local info=
-  local voltNow=
+  local voltNow_=
   local currNow=
   local powerNow=
   local factor=
@@ -29,36 +29,33 @@ batt_info() {
 
   # raw battery info from the kernel's battery interface
   info="$(
-    { grep . $batt/* 2>/dev/null || :; printf status=; cat $battStatus; } \
-      | sort -u \
-      | sed -E "s|$batt/||;
-        /^uevent:/d;
-        s/^batt_vol=/voltage_now=/;
-        s/^batt_temp=/temp=/;
-        /^(charge_type|name)=/d;
-        /^capacity=/s/=.*/=$(cat $battCapacity)/;
-        s/:/=/"
+    { grep . $battCapacity $battStatus $currFile $temp $voltNow 2>/dev/null || :; } \
+      | sed "s|.*/||; s/:/ /; s/^batt_vol/voltage_now/; s/^batt_temp/temp/" | sort
   )"
 
 
   # determine the correct charging status
   not_charging || :
-  info="$(echo "$info" | sed "/^status=/s/=.*/=$_status/")"
+  info="$(echo "$info" | sed "s/^status .*/status $_status/")"
 
 
   # because MediaTek is weird
   [ ! -d /proc/mtk_battery_cmd ] || {
-    echo "$info" | grep '^current_now=' > /dev/null \
-      || info="${info/batteryaveragecurrent=/current_now=}"
+    echo "$info" | grep '^current_now ' > /dev/null \
+      || info="${info/batteryaveragecurrent/current_now}"
   }
 
 
-  # ensure temperature value is correct
-  info="$(echo "$info" | sed "/^temp=/s/=.*/=$(cat $temp)/g" | sort -u)"
+  # append %
+  info="$(echo "$info" | sed -E "s/^capacity (.*)/level \1%/")"
+
+
+  # convert temp to ℃
+  info="$(echo "$info" | sed "s/^temp .*/temp $(($(cat $temp) / 10))℃/")"
 
 
   # parse CURRENT_NOW & convert to Amps
-  currNow=$(echo "$info" | sed -n "s/^current_now=//p" | head -n1)
+  currNow=$(echo "$info" | sed -n "s/^current_now //p")
   dtr_conv_factor ${currNow#-} ${ampFactor:-$ampFactor_}
   currNow=$(calc2 ${currNow:-0} / $factor)
 
@@ -79,26 +76,24 @@ batt_info() {
 
 
   # parse VOLTAGE_NOW & convert to Volts
-  voltNow=$(echo "$info" | sed -n "s/^voltage_now=//p" | head -n1)
-  dtr_conv_factor $voltNow ${voltFactor-}
-  voltNow=$(calc2 ${voltNow:-0} / $factor)
+  voltNow_=$(echo "$info" | sed -n "s/^voltage_now //p")
+  dtr_conv_factor $voltNow_ ${voltFactor-}
+  voltNow_=$(calc2 ${voltNow_:-0} / $factor)
 
 
   # calculate POWER_NOW (Watts)
-  powerNow=$(calc2 $currNow \* $voltNow)
+  powerNow=$(calc2 $currNow \* $voltNow_)
 
 
   {
     # print raw battery info
-    ${verbose:-true} \
-      && echo "$info" \
-      || echo "$info" | grep -Ev '^(current|voltage)_now='
+    echo "$info" | grep -Ev '^(current|voltage)_now '
 
-    # print CURRENT_NOW, VOLTAGE_NOW and POWER_NOW
+    # print current_now, voltage_now and power_now
     echo "
-current_now=$currNow$(print_a 2>/dev/null || :)
-voltage_now=$voltNow$(print_v 2>/dev/null || :)
-power_now=$powerNow$(print_W 2>/dev/null || :)"
+current_now ${currNow}A
+voltage_now ${voltNow_}V
+power_now ${powerNow}W"
 
 
   # power supply info
@@ -108,7 +103,7 @@ power_now=$powerNow$(print_W 2>/dev/null || :)"
       power_supply_type=$(cat $i/real_type 2>/dev/null || echo $i)
 
       echo "
-charge_type=$power_supply_type"
+charge_type $power_supply_type"
 
       power_supply_amps=$(dtr_conv_factor $(cat $i/*current_now | tail -n 1) ${ampFactor:-$ampFactor_})
 
@@ -117,10 +112,10 @@ charge_type=$power_supply_type"
         power_supply_watts=$(calc2 $power_supply_amps \* $power_supply_volts)
         consumed_watts=$(calc2 $power_supply_watts - $powernow)
 
-        echo "power_supply_amps=$power_supply_amps
-power_supply_volts=$power_supply_volts
-power_supply_watts=$power_supply_watts
-consumed_watts=$consumed_watts"
+        echo "power_supply_amps $power_supply_amps
+power_supply_volts $power_supply_volts
+power_supply_watts $power_supply_watts
+consumed_watts $consumed_watts"
       fi
 
       break
@@ -128,9 +123,9 @@ consumed_watts=$consumed_watts"
   done 2>/dev/null || :
 
 
-  # online status
+  # online status (for debugging)
   echo
-  grep . */online
+  grep . */online | sed 's/:/ /'
 
 
   } | grep -Ei "${one:-.*}" || :

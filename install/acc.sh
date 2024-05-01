@@ -705,7 +705,11 @@ case "${1-}" in
     . $execDir/batt-info.sh
     while :; do
       clear
-      batt_info "${two-}"
+      if ${verbose:-true}; then
+        batt_info "${two-}"
+      else
+        batt_info "${two-}" | grep -v '^$' 2>/dev/null || :
+      fi
       sleep $sleepSeconds
       set +x
     done

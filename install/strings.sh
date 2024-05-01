@@ -426,11 +426,11 @@ print_charge_once() {
 }
 
 print_mA() {
-  echo " Milliamps"
+  echo " mA"
 }
 
 print_mV() {
-  echo " Millivolts"
+  echo " mV"
 }
 
 print_uninstall() {
@@ -457,14 +457,6 @@ print_update() {
   echo "Check for update 🔃"
 }
 
-print_W() {
-  echo " Watt(s)"
-}
-
-print_V() {
-  echo " Volts"
-}
-
 print_available() {
   echo "$@ is available"
 }
@@ -475,10 +467,6 @@ print_install_prompt() {
 
 print_no_update() {
   echo "No update available"
-}
-
-print_A() {
-  echo " Amps"
 }
 
 print_only() {

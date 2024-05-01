@@ -69,7 +69,7 @@ case "$@" in
     . $config
     . $execDir/batt-interface.sh
     . $execDir/batt-info.sh
-    batt_info "${2-}"
+    batt_info "${2-}" | grep -v '^$' 2>/dev/null || :
     exit 0
   ;;
 
