@@ -911,7 +911,7 @@ Options
   -s|--set   Print current config
     e.g., acc -s
 
-  -s|--set file   Get config from file (in "acc -s" format); the file's path must be absolute
+  -s|--set file   Get config from file (in "acc -s" format); the file's path must be absolute; partial config is supported
     e.g., acc -s /data/config
 
   -s|--set prop1=value "prop2=value1 value2"   Set [multiple] properties
