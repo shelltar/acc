@@ -163,7 +163,7 @@ disable_charging() {
         print_charging_disabled_until $1
         echo
         set +x
-        until [ $(cat $battCapacity) -le ${1%\%} ]; do
+        until [ $(batt_cap) -le ${1%\%} ]; do
           sleep ${loopDelay[1]}
         done
         log_on
@@ -236,7 +236,7 @@ enable_charging() {
         print_charging_enabled_until $1
         echo
         set +x
-        until [ $(cat $battCapacity) -ge ${1%\%} ]; do
+        until [ $(batt_cap) -ge ${1%\%} ]; do
           sleep ${loopDelay[0]}
         done
         log_on
@@ -465,8 +465,8 @@ cd /sys/class/power_supply/
 
 # cmd battery and dumpsys wrappers
 if is_android; then
-  cmd_batt() { /system/bin/cmd battery "$@" < /dev/null > /dev/null 2>&1 || :; }
-  dumpsys() { /system/bin/dumpsys "$@" || :; }
+  cmd_batt() { /system/bin/cmd battery "$@" < /dev/null 2>/dev/null || :; }
+  dumpsys() { /system/bin/dumpsys "$@" 2>/dev/null || :; }
 else
   cmd_batt() { :; }
   dumpsys() { :; }

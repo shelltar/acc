@@ -149,7 +149,7 @@ volt_now() {
 }
 
 
-if ${init:-false}; then
+if ${_INIT:-false}; then
 
 
   # Nexus 10 (manta)
@@ -224,7 +224,8 @@ curThen=$curThen
 temp=$temp
 voltNow=$voltNow" > $TMPDIR/.batt-interface.sh
 
-  init=false
+  _INIT=false
+
 
 else
   touch $TMPDIR/.batt-interface.sh
@@ -232,3 +233,9 @@ else
 fi
 
 [ -f $curThen ] || echo null > $curThen
+
+bat_cap() {
+  local l=$(cmd_batt get level)
+  local l2=$(cat $battCapacity)
+  [[ -n "$l" && $l -ne $l2 ]] && echo $l || echo $l2
+}

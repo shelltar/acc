@@ -60,21 +60,6 @@ batt_info() {
   currNow=$(calc2 ${currNow:-0} / $factor)
 
 
-  # add/remove negative sign
-  case $currNow in
-    0.00)
-      :
-    ;;
-    *)
-      if [ $_status = Discharging ]; then
-        currNow=-${currNow#-}
-      elif [ $_status = Charging ]; then
-        currNow=${currNow#-}
-      fi
-    ;;
-  esac
-
-
   # parse VOLTAGE_NOW & convert to Volts
   voltNow_=$(echo "$info" | sed -n "s/^voltage_now //p")
   dtr_conv_factor $voltNow_ ${voltFactor-}

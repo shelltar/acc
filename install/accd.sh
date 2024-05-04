@@ -7,22 +7,22 @@
 . $execDir/acquire-lock.sh
 
 
-init=false
+_INIT=false
 
 case "$*" in
-  *-i*) init=true;;
-  *) [ -f $TMPDIR/.config-ver ] || init=true;;
+  *-i*) _INIT=true;;
+  *) [ -f $TMPDIR/.config-ver ] || _INIT=true;;
 esac
 
 
-if ! $init; then
+if ! $_INIT; then
 
 
   _ge_cooldown_cap() {
     if [ ${capacity[1]} -gt 3000 ]; then
       [ $(volt_now) -ge ${capacity[1]} ]
     else
-      [ $(cat $battCapacity) -ge ${capacity[1]} ]
+      [ $(batt_cap) -ge ${capacity[1]} ]
     fi
   }
 
@@ -31,7 +31,7 @@ if ! $init; then
     if [ ${capacity[3]} -gt 3000 ]; then
       [ $(volt_now) -ge ${capacity[3]} ]
     else
-      [ $(cat $battCapacity) -ge ${capacity[3]} ]
+      [ $(batt_cap) -ge ${capacity[3]} ]
     fi
   }
 
@@ -40,7 +40,7 @@ if ! $init; then
     if [ ${capacity[3]} -gt 3000 ]; then
       [ $(volt_now) -le ${capacity[3]} ]
     else
-      [ $(cat $battCapacity) -le ${capacity[3]} ]
+      [ $(batt_cap) -le ${capacity[3]} ]
     fi
   }
 
@@ -49,7 +49,7 @@ if ! $init; then
     if [ ${capacity[3]} -gt 3000 ]; then
       [ $(volt_now) -lt ${capacity[3]} ]
     else
-      [ $(cat $battCapacity) -lt ${capacity[3]} ]
+      [ $(batt_cap) -lt ${capacity[3]} ]
     fi
   }
 
@@ -58,7 +58,7 @@ if ! $init; then
     if [ ${capacity[2]} -gt 3000 ]; then
       [ $(volt_now) -gt ${capacity[2]} ]
     else
-      [ $(cat $battCapacity) -gt ${capacity[2]} ]
+      [ $(batt_cap) -gt ${capacity[2]} ]
     fi
   }
 
@@ -69,7 +69,7 @@ if ! $init; then
     elif [ ${capacity[2]} -gt 3000 ]; then
       [ $(volt_now) -le ${capacity[2]} ]
     else
-      [ $(cat $battCapacity) -le ${capacity[2]} ]
+      [ $(batt_cap) -le ${capacity[2]} ]
     fi
   }
 
@@ -78,7 +78,7 @@ if ! $init; then
     if [ ${capacity[0]} -gt 3000 ]; then
       [ $(volt_now) -le ${capacity[0]} ]
     else
-      [ $(cat $battCapacity) -le ${capacity[0]} ]
+      [ $(batt_cap) -le ${capacity[0]} ]
     fi
   }
 
@@ -92,7 +92,7 @@ if ! $init; then
     if [ ${capacity[3]} -gt 3000 ]; then
       [ ${capacity[3]} -gt 3900 ] && [ $(volt_now) -gt $(( ${capacity[3]} + 50 )) ]
     else
-      [ ${capacity[3]} -gt 60 ] && [ $(cat $battCapacity) -gt $(( ${capacity[3]} + 1 )) ]
+      [ ${capacity[3]} -gt 60 ] && [ $(batt_cap) -gt $(( ${capacity[3]} + 1 )) ]
     fi
   }
 
@@ -105,7 +105,7 @@ if ! $init; then
     [ -n "$1" ] && exitCode=$1
     [ -n "$2" ] && print "$2"
     $persistLog || exec > /dev/null 2>&1
-    cmd_batt reset
+    cmd_batt reset >/dev/null
     grep -Ev '^$|^#' $config > $TMPDIR/.config
     config=$TMPDIR/.config
     applyOnPlug=(${applyOnPlug[*]-} ${applyOnBoot[*]-})
@@ -115,7 +115,7 @@ if ! $init; then
     if [[ "$exitCode" = [127] ]]; then
       . $execDir/logf.sh
       logf --export
-      notif "⚠️ Daemon stopped with exit code $exitCode! Run \"acc -l tail\" to see the last 10 lines of the log file."
+      notif "⚠️ accd stopped (error $exitCode!); log: \"acc -l tail\""
     fi
     cd /
     echo versionCode=$versionCode
@@ -179,8 +179,8 @@ if ! $init; then
     if $isCharging; then
 
       # set chgStatusCode
-      [ -z "$chgStatusCode" ] && cmd_batt reset \
-        && chgStatusCode=$(dumpsys battery 2>/dev/null | sed -n 's/^  status: //p') || :
+      [ -z "$chgStatusCode" ] && cmd_batt reset >/dev/null \
+        && chgStatusCode=$(cmd_batt get status) || :
 
       if [ -f $TMPDIR/.ch-curr-read ]; then
         # set charging current control files, as needed
@@ -208,7 +208,7 @@ if ! $init; then
         if $resetBattStatsOnPlug && ${resetBattStats[2]}; then
           sleep ${loopDelay[0]}
           not_charging || {
-            dumpsys batterystats --reset < /dev/null > /dev/null 2>&1
+            dumpsys batterystats --reset < /dev/null > /dev/null
             rm /data/system/batterystats* || :
             resetBattStatsOnPlug=false
           } 2>/dev/null
@@ -240,15 +240,15 @@ if ! $init; then
         } || :
 
       # set dischgStatusCode and capacitySync
-      [ -z "$dischgStatusCode" ] && cmd_batt reset \
-        && dischgStatusCode=$(dumpsys battery 2>/dev/null | sed -n 's/^  status: //p')
+      [ -z "$dischgStatusCode" ] && cmd_batt reset >/dev/null \
+        && dischgStatusCode=$(cmd_batt get status)
 
       $cooldown || {
         resetBattStatsOnPlug=true
         if $resetBattStatsOnUnplug && ${resetBattStats[1]}; then
           sleep ${loopDelay[1]}
           ! not_charging Discharging || {
-            dumpsys batterystats --reset < /dev/null > /dev/null 2>&1
+            dumpsys batterystats --reset < /dev/null > /dev/null
             rm /data/system/batterystats* || :
             resetBattStatsOnUnplug=false
           } 2>/dev/null
@@ -262,7 +262,7 @@ if ! $init; then
     if [ -n "${idleApps[0]}" ]; then
       dumpsys activity top | sed -En 's/(.*ACTIVITY )(.*)(\/.*)/\2/p' \
       | tail -n 1 | grep -E "$(echo ${idleApps[*]} | sed 's/ /|/g; s/,/|/g')" >/dev/null \
-      && capacity[3]=$(cat $battCapacity) && capacity[2]=$((capacity[3] - 5)) || :
+      && capacity[3]=$(batt_cap) && capacity[2]=$((capacity[3] - 5)) || :
     fi
     set -u
 
@@ -309,7 +309,7 @@ if ! $init; then
           fi
           ! ${resetBattStats[0]} || {
             # reset battery stats on pause
-            dumpsys batterystats --reset < /dev/null > /dev/null 2>&1
+            dumpsys batterystats --reset < /dev/null > /dev/null
             rm /data/system/batterystats* 2>/dev/null || :
           }
           sleep ${loopDelay[1]}
@@ -334,7 +334,7 @@ if ! $init; then
             disable_charging
             sleep ${cooldownRatio[1]:-${loopDelay[0]}}
             enable_charging
-            $capacitySync || cmd_batt reset
+            $capacitySync || cmd_batt reset >/dev/null
             sleep ${cooldownRatio[0]:-${loopDelay[0]}}
           else
             (set_ch_curr ${cooldownCurrent:--} || :)
@@ -374,7 +374,7 @@ if ! $init; then
                   || ! notif "⚠️ WARNING: ~100mV to auto shutdown, plug the charger!" \
                     || sleep ${loopDelay[1]}
               else
-                ! [ $(cat $battCapacity) -eq $(( ${capacity[0]} + 5 )) ] \
+                ! [ $(batt_cap) -eq $(( ${capacity[0]} + 5 )) ] \
                   || ! notif "⚠️ WARNING: 5% to auto shutdown, plug the charger!" \
                     || sleep ${loopDelay[1]}
               fi
@@ -457,18 +457,13 @@ if ! $init; then
 
   sync_capacity() {
     is_android || return 0
-    if [ ${capacity[4]} = true ] || ${capacity[5]} || \
-      { [ ${capacity[4]} = auto ] \
-      && [ $(dumpsys battery 2>/dev/null | sed -n 's/^  level: //p') -ne $(cat $battCapacity) ] \
-      && sleep 2 \
-      &&  [ $(dumpsys battery 2>/dev/null | sed -n 's/^  level: //p') -ne $(cat $battCapacity) ]; }
-    then
+    if ${capacity[4]}; then
       capacitySync=true
       isCharging=${isCharging:-false}
       local isCharging_=$isCharging
-      local battCap=$(cat $battCapacity)
+      local battCap=$(batt_cap)
 
-      ! ${capacity[5]} || {
+      ! ${capacity[4]} || {
         if [ ${capacity[3]} -gt 3000 ]; then
           local maskedCap=$battCap
         else
@@ -495,15 +490,17 @@ if ! $init; then
       isCharging=$isCharging_
 
       [ $battCap -lt 2 ] || {
-        if ${capacity[5]}; then
+        if ${capacity[4]}; then
           cmd_batt set level $maskedCap
+          cmd_batt set temp $(cat $temp)
         else
           cmd_batt set level $battCap
+          cmd_batt set temp $(cat $temp)
         fi
       }
     else
       ! $capacitySync || {
-        cmd_batt reset
+        cmd_batt reset >/dev/null
         capacitySync=false
       }
     fi

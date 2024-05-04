@@ -414,7 +414,7 @@ case "${1-}" in
 
     counter=$(set +e; grep -E '[1-9]+' */charge_counter 2>/dev/null | head -n 1 | sed 's/.*://' || :)
     health=
-    level=$(cat $batt/capacity)
+    level=$(batt_cap)
     mAh=${2-}
 
     [ -n "$mAh" ] || { echo "${0##*/} $1 <mAh>"; exit; }
