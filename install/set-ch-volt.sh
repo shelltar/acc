@@ -1,8 +1,11 @@
 set_ch_volt() {
 
-  if [ -n "${1-}" ]; then
+  local f=$TMPDIR/.volt-default
+  local verbose=${verbose:-true}
 
-    local verbose=${verbose:-true}
+  ! [[ -f $f && .${1-} = .- ]] || return 0
+
+  if [ -n "${1-}" ]; then
 
     set -- $*
 
@@ -28,6 +31,7 @@ set_ch_volt() {
       apply_on_boot_ default force
       max_charging_voltage=
       ! ${verbose:-true} || print_volt_restored
+      touch $f
 
     else
       apply_voltage() {
@@ -53,6 +57,7 @@ set_ch_volt() {
         ! ${verbose:-true} || echo "[3700-4300]$(print_mV; print_only)"
         apply_voltage 4300 ${2-} || return 1
       fi
+      rm $f 2>/dev/null || :
     fi
 
   else

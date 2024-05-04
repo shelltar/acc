@@ -1,6 +1,9 @@
 set_ch_curr() {
 
+  local f=$TMPDIR/.curr-default
   local verbose=${verbose:-true}
+
+  ! [[ -f $f && .${1-} = .- ]] || return 0
 
   if [[ .${1-} = .*% ]]; then
     set_temp_level ${1%\%}
@@ -46,6 +49,7 @@ set_ch_curr() {
       apply_on_plug_ default
       max_charging_current=
       ! $verbose || print_curr_restored
+      touch $f
 
     else
 
@@ -71,6 +75,7 @@ set_ch_curr() {
         ! $verbose || echo "[0-9999]$(print_mA; print_only)"
         return 11
       fi
+      rm $f 2>/dev/null || :
     fi
 
   else

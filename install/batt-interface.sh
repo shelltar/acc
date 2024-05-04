@@ -73,10 +73,12 @@ read_status() {
 
 
 set_temp_level() {
+  local f=$TMPDIR/.tl-default
   local a=
   local b=battery/siop_level
   local l=${1:-${tempLevel-}}
   [ -n "$l" ] || return 0
+  [[ $l -eq 0 && -f $f ]]  && return 0 || :
   if [ -f $b ]; then
     chown 0:0 $b && chmod 0644 $b && echo $((100 - $l)) > $b && chmod 0444 $b || :
   else
@@ -95,6 +97,7 @@ set_temp_level() {
     fi
     chown 0:0 $b && chmod 0644 $b && echo $(( ($(cat $a) * l) / 100 )) > $b && chmod 0444 $b || :
   done
+  [ $l -eq 0 ] && touch $f || rm $f 2>/dev/null || :
 }
 
 
