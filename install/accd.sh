@@ -418,28 +418,33 @@ if ! $init; then
     local cmd=
     local curr=
     . $config
-    while [ -z "${dischargePolarity-}" ] && [ $currFile != $TMPDIR/.dummy-curr ] && $battStatusWorkaround; do
-      cmd="$TMPDIR/acca $config --set discharge_polarity="
+    while [ -z "${_DPOL-}" ] && [ $currFile != $TMPDIR/.dummy-curr ] && $battStatusWorkaround; do
       curr=$(cat $currFile)
       if online; then
-        if [ $(cat $battStatus) = Charging ] && [ ${curr#-} -gt $idleThreshold ]; then
+        if [ ${curr#-} -ge ${ampFactor:-$ampFactor_} ]; then
           if [ $curr -gt 0 ]; then
-            eval "$cmd"-
+            sdp -
           elif [ $curr -lt 0 ]; then
-            eval "$cmd"+
+            sdp +
           fi
         fi
       else
         if [ $curr -gt 0 ]; then
-          eval "$cmd"+
+          sdp +
         elif [ $curr -lt 0 ]; then
-          eval "$cmd"-
+          sdp -
         fi
       fi
       set +x
       . $config
     done
     set -x
+  }
+
+
+  sdp() {
+    _DPOL=$1
+    echo _DPOL=$1 >> $TMPDIR/.batt-interface.sh
   }
 
 
