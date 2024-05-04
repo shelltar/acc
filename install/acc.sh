@@ -513,6 +513,7 @@ case "${1-}" in
     parsed=
     exitCode_=10
     exitCode=$exitCode_
+    logF_=$dataDir/logs/acc-t_output-${device}.log
     logF=/sdcard/Download/acc-t_output-${device}_$(date +%Y-%m-%d_%H:%M:%S).log
 
     shift
@@ -543,6 +544,7 @@ case "${1-}" in
           ! grep -q "$line " $TMPDIR/.sw || sed -i "\|$line|d" $dataDir/logs/write.log
         done < $dataDir/logs/write.log
       fi
+      cp -f $logF $logF_ 2>/dev/null
       ! $daemonWasUp || start-stop-daemon -bx $TMPDIR/.accdt -S --
       exit $exitCode
     }
