@@ -1935,7 +1935,7 @@ Options
       acc -s &quot;charging_switch=battery/charging_enabled 1 0&quot; resume_capacity=55 pause_capacity=60
     Note: all properties have short aliases for faster typing; run &quot;acc -c cat&quot; to see them
 
-  -s|--set c|--current [milliamps|-]   Set/print/restore_default max charging current (range: 0-9999 Milliamps)
+  -s|--set c|--current [milliamps|-]   Set/print/restore_default max charging current (range: 0-9999 mA)
     e.g.,
       acc -s c (print current limit)
       acc -s c 500 (set)
@@ -1977,7 +1977,7 @@ Options
 
   -ss:   Same as above
 
-  -s|--set v|--voltage [millivolts|-] [--exit]   Set/print/restore_default max charging voltage (range: 3700-4300 Millivolts)
+  -s|--set v|--voltage [millivolts|-] [--exit]   Set/print/restore_default max charging voltage (range: 3700-4300 mV)
     e.g.,
       acc -s v (print)
       acc -s v 3900 (set)
@@ -2341,12 +2341,16 @@ Alternatively, a <em>compressed</em> archive of translated <code>strings.sh</cod
 <p>Force fast wireless charging with third party wireless chargers that are supposed to charge the battery faster: <code>apply_on_plug=wireless/voltage_max::9000000</code>.</p>
 <p>This may not work on all Pixel devices.
 There are no negative consequences when it doesn&rsquo;t.</p>
+<h3 id="exportimport-config">Export/import Config<a class="headerlink" href="#exportimport-config" title="Permanent link"></a></h3>
+<p>Export: <code>acc -s &gt; /sdcard/Download/config.txt</code></p>
+<p>Import: <code>acc -s /sdcard/Download/config.txt</code></p>
+<p>Partial import is supported - meaning, users can share just a portion of the config (e.g., <code>acc -sp curr,volt &gt; file</code>); whoever imports this, gets just those changes.</p>
 <h3 id="override-battery-mah-capacity">Override Battery mAh Capacity<a class="headerlink" href="#override-battery-mah-capacity" title="Permanent link"></a></h3>
 <p>An &ldquo;extended&rdquo; battery won&rsquo;t charge fully if the kernel still has the stock <code>charge_full_design</code> value.
 Some devices allow that to be modified. If that&rsquo;s the case for you, use <code>apply_on_boot</code> to set the desired value(s) in <code>/sys/class/power_supply/*/charge_full_design</code>.</p>
 <h3 id="override-broken-temperature-sensor">Override Broken Temperature Sensor<a class="headerlink" href="#override-broken-temperature-sensor" title="Permanent link"></a></h3>
-<p>If your battery&rsquo;s thermistor always reports a negative value, and charging is very slow or even off, see if the following helps:</p>
-<p><code>echo ': ; if ${isAccd:-false} &amp;&amp; online; then (for i in */temp_cool */temp_cold; do [ -f $i ] || continue; chown 0:0 $i; chmod 0644 $i; echo "-999" &gt; $i; done); fi || :' &gt;&gt; $(acca -c echo)</code></p>
+<p>If your battery&rsquo;s thermistor always reports a negative value, and charging is very slow or even off, see if the following helps (paste and run):</p>
+<p><code>acc -c d temp_cool; acc -c a ':; for i in */temp_cool */temp_cold; do [ -f $i ] || continue; chown 0:0 $i &amp;&amp; chmod 0644 $i &amp;&amp; echo "-999" &gt; $i &amp;&amp; chown 0444 $i || :; done'</code></p>
 <hr />
 <h2 id="frequently-asked-questions-faq">FREQUENTLY ASKED QUESTIONS (FAQ)<a class="headerlink" href="#frequently-asked-questions-faq" title="Permanent link"></a></h2>
 <blockquote>

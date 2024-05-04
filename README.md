@@ -881,7 +881,7 @@ Options
       acc -s "charging_switch=battery/charging_enabled 1 0" resume_capacity=55 pause_capacity=60
     Note: all properties have short aliases for faster typing; run "acc -c cat" to see them
 
-  -s|--set c|--current [milliamps|-]   Set/print/restore_default max charging current (range: 0-9999 Milliamps)
+  -s|--set c|--current [milliamps|-]   Set/print/restore_default max charging current (range: 0-9999 mA)
     e.g.,
       acc -s c (print current limit)
       acc -s c 500 (set)
@@ -923,7 +923,7 @@ Options
 
   -ss:   Same as above
 
-  -s|--set v|--voltage [millivolts|-] [--exit]   Set/print/restore_default max charging voltage (range: 3700-4300 Millivolts)
+  -s|--set v|--voltage [millivolts|-] [--exit]   Set/print/restore_default max charging voltage (range: 3700-4300 mV)
     e.g.,
       acc -s v (print)
       acc -s v 3900 (set)
@@ -1414,6 +1414,15 @@ This may not work on all Pixel devices.
 There are no negative consequences when it doesn't.
 
 
+### Export/import Config
+
+Export: `acc -s > /sdcard/Download/config.txt`
+
+Import: `acc -s /sdcard/Download/config.txt`
+
+Partial import is supported - meaning, users can share just a portion of the config (e.g., `acc -sp curr,volt > file`); whoever imports this, gets just those changes.
+
+
 ### Override Battery mAh Capacity
 
 An "extended" battery won't charge fully if the kernel still has the stock `charge_full_design` value.
@@ -1422,9 +1431,9 @@ Some devices allow that to be modified. If that's the case for you, use `apply_o
 
 ### Override Broken Temperature Sensor
 
-If your battery's thermistor always reports a negative value, and charging is very slow or even off, see if the following helps:
+If your battery's thermistor always reports a negative value, and charging is very slow or even off, see if the following helps (paste and run):
 
-`echo ': ; if ${isAccd:-false} && online; then (for i in */temp_cool */temp_cold; do [ -f $i ] || continue; chown 0:0 $i; chmod 0644 $i; echo "-999" > $i; done); fi || :' >> $(acca -c echo)`
+`acc -c d temp_cool; acc -c a ':; for i in */temp_cool */temp_cold; do [ -f $i ] || continue; chown 0:0 $i && chmod 0644 $i && echo "-999" > $i && chown 0444 $i || :; done'`
 
 
 ---
