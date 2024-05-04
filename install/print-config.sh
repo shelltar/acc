@@ -3,9 +3,7 @@ set +u
 echo "allow_idle_above_pcap=$allowIdleAbovePcap
 amp_factor=$ampFactor
 batt_status_workaround=$battStatusWorkaround
-
-capacity_mask=${capacity[5]}
-capacity_sync=${capacity[4]}
+capacity_mask=${capacity[4]}
 
 cooldown_capacity=${capacity[1]}
 cooldown_charge=${cooldownRatio[0]}
@@ -14,9 +12,7 @@ cooldown_pause=${cooldownRatio[1]}
 cooldown_temp=${temperature[0]}
 
 current_workaround=$currentWorkaround
-discharge_polarity=$dischargePolarity
 force_off=$forceOff
-idle_threshold=$idleThreshold
 lang=$language
 
 max_charging_current=${maxChargingCurrent[0]}

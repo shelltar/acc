@@ -237,18 +237,16 @@ In interactive mode, it also asks the user whether they want to download and ins
 ```
 #DC#
 
-configVerCode=202404110
+configVerCode=202405040
 
 allowIdleAbovePcap=true
 ampFactor=
 battStatusWorkaround=true
-capacity=(5 50 70 75 false false)
+capacity=(5 50 70 75 false)
 cooldownCurrent=
 cooldownRatio=()
 currentWorkaround=false
-dischargePolarity=
 forceOff=false
-idleThreshold=40
 language=en
 offMid=true
 prioritizeBattIdleMode=true
@@ -284,15 +282,13 @@ runCmdOnPause=''
 # applyOnPlug=([CTRL_FILE1::RAW_VALUE[::DEFAULT]] [CTRL_FILE2::RAW_VALUE[::DEFAULT]...])
 # battStatusOverride=Idle|Discharging|'code to PRINT value for _status'
 # battStatusWorkaround=true|false
-# capacity=(shutdown_capacity=% cooldown_capacity=% resume_capacity=% pause_capacity=% capacity_sync=auto|true|false capacity_mask=true|false)
+# capacity=(shutdown_capacity=% cooldown_capacity=% resume_capacity=% pause_capacity=% capacity_mask=true|false)
 # chargingSwitch=([CTRL_FILE1 ON OFF [CTRL_FILE2 ON OFF...] [--]])
 # cooldownCurrent=mA|mA%
 # cooldownRatio=(cooldown_charge=seconds cooldown_pause=seconds)
 # currentWorkaround=true|false
-# dischargePolarity=+|-
 # forceOff=true|false
 # idleApps=(comma or space-separated patterns matching Android package names)
-# idleThreshold=mA
 # language=LANGUAGE_CODE
 # maxChargingCurrent=(MILLIAMPS [CTRL_FILE1::RAW_VALUE::DEFAULT CTRL_FILE2::RAW_VALUE::DEFAULT...])
 # maxChargingVoltage=(MILLIVOLTS [CTRL_FILE1::RAW_VALUE::DEFAULT CTRL_FILE2::RAW_VALUE::DEFAULT...] [--exit])
@@ -381,7 +377,6 @@ runCmdOnPause=''
 # batt_status_override bso
 # batt_status_workaround bsw
 # capacity_mask cm
-# capacity_sync cs
 # charging_switch s
 # cooldown_capacity cc
 # cooldown_charge cch
@@ -389,10 +384,8 @@ runCmdOnPause=''
 # cooldown_pause cp
 # cooldown_temp ct
 # current_workaround cw
-# discharge_polarity dp
 # force_off fo
 # idle_apps ia
-# idle_threshold it
 # lang l
 # max_charging_current mcc
 # max_charging_voltage mcv
@@ -482,7 +475,7 @@ runCmdOnPause=''
 # Type: Boolean
 # Default: true
 #
-# With this enabled (true), in addition to just reading POWER_SUPPLY_STATUS, if the battery is "Charging" and current is within idle_threshold (inclusive), battery status is considered "Idle".
+# With this enabled (true), in addition to just reading POWER_SUPPLY_STATUS, if the battery is "Charging" and current is within 40mA (inclusive), battery status is considered "Idle".
 # Status is considered "Discharging", if the current's polarity changes after calling the disable_charging function.
 # By not relying solely on the information provided by POWER_SUPPLY_STATUS, this approach dramatically boosts compatibility.
 # This must be disabled on systems that report wrong/misleading charging current values.
@@ -493,20 +486,9 @@ runCmdOnPause=''
 # Type: Boolean
 # Default: false
 #
-# Implies capacity_sync.
 # This forces Android to report "capacity = (capacity - shutdown _capacity) * 100 / (pause_capacity - shutdown_capacity)", effectively masking capacity limits.
 # It also prevents Android from getting capacity readings below 2%, since some systems shutdown before battery level actually drops to 0%.
 # Use case: Secretly install acc on a relative's device, and enable this, so that they always see the regular 0-100% battery level scale.
-
-
-# capacity_sync (cs) #
-#
-# Type: Boolean | String (cs=auto)
-# Default: false
-#
-# Some devices, notably from the Pixel lineup, have a capacity discrepancy issue between Android's battery service and the kernel.
-# capacity_sync forces Android to report the actual battery capacity information provided by the kernel.
-# Besides, it also prevents Android from getting capacity readings below 2%, since some systems shutdown before battery level actually drops to 0%.
 
 
 # charging_switch (s) #
@@ -581,17 +563,6 @@ runCmdOnPause=''
 # Enable if low current values don't work.
 
 
-# discharge_polarity (dp) #
-#
-# Type: String (- or +)
-# Default: Null
-#
-# This overrides the automatic current polarity (+|-) detection.
-# It's only relevant when batt_status_workaround=true.
-# If null, the appropriate value is determined and set automatically by acc daemon.
-# Although rare, polarity may change with a kernel upgrade. If this setting is wrong, charging control won't work when batt_status_workaround is on.
-
-
 # force_off (fo) #
 #
 # Type: Boolean
@@ -609,17 +580,6 @@ runCmdOnPause=''
 # This is a list of comma or space-separated patterns matching Android package names.
 # When a matched app is running in the foreground, acc daemon enables idle mode.
 # e.g., acc -s ia=maps,pubg,codm,pokemon
-
-
-# idle_threshold (it) #
-#
-# Type: Integer (milliamps)
-# Default: 40
-#
-# Current threshold (absolute value) in milliamps to consider _status=Idle (only relevant if batt_status_workaround=true).
-# Don't change, unless you really understand what you're doing.
-# This setting exists because some switches that support idle mode take too long to respond.
-# While using those, current tends to hover around 40 mA for several seconds, before it drops to 0 +/- 10 mA.
 
 
 # lang (l) #

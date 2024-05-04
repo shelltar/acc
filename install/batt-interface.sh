@@ -3,7 +3,7 @@ idle_discharging() {
     _status=Idle
     return 0
   fi
-  case "${dischargePolarity-}" in
+  case "${_DPOL-}" in
     +) [ $curNow -ge 0 ] && _status=Discharging || _status=Charging;;
     -) [ $curNow -lt 0 ] && _status=Discharging || _status=Charging;;
     *) [ $curThen = null ] || {
@@ -19,7 +19,7 @@ not_charging() {
   local sti=${_STI:-15} # switch test iterations
   local switch=${flip-}; flip=
   local curThen=$(cat $curThen)
-  local idleThreshold=$idleThreshold
+  local idleThreshold=${idleThreshold:-40}
   local battStatusOverride="${battStatusOverride-}"
   local battStatusWorkaround=${battStatusWorkaround-}
 
