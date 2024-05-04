@@ -50,9 +50,6 @@ charging_switch=\"${chargingSwitch[@]}\"
 
 idle_apps=\"${idleApps[@]}\"
 
-run_cmd_on_pause=\"$runCmdOnPause\"
-
-loop_cmd=:
-max_temp_pause=60"
+run_cmd_on_pause=\"$runCmdOnPause\""
 
 [ "${1-.}" = ns ] || sed -n 's/^:/\n:/p' $config

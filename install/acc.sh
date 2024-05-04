@@ -560,7 +560,6 @@ case "${1-}" in
       log_on
     }
 
-    [ "${1-}" != -- ] || shift #legacy, AccA
     . $execDir/read-ch-curr-ctrl-files-p2.sh
     echo
     { echo versionCode=$(sed -n s/versionCode=//p $execDir/module.prop 2>/dev/null || :)
@@ -625,7 +624,7 @@ case "${1-}" in
   ;;
 
 
-  -T|--logtail|-L) #legacy, AccA
+  -T|--logtail)
     tail -F $TMPDIR/accd-*.log
   ;;
 
