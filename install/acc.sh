@@ -377,6 +377,7 @@ case "${1-}" in
     cooldown_current=
     cooldown_pause=
     cooldown_temp=
+    idle_apps=
     max_charging_current=
     max_charging_voltage=
     max_temp=
