@@ -258,6 +258,11 @@ Options
 
   -ss:   Same as above
 
+  -s|--set s::|chargingSwitch::   List working charging switches and mcc, mcv & tl support status
+    e.g., acc -s s::
+
+  -ss::   Same as above
+
   -s|--set v|--voltage [millivolts|-] [--exit]   Set/print/restore_default max charging voltage (range: 3700-4300$(print_mV))
     e.g.,
       acc -s v (print)

@@ -418,7 +418,7 @@ if ! $_INIT; then
     local cmd=
     local curr=
     . $config
-    while [ -z "${_DPOL-}" ] && [ $currFile != $TMPDIR/.dummy-curr ] && $battStatusWorkaround; do
+    while [ -z "${_DPOL-}" ] && $battStatusWorkaround && [ $currFile != $TMPDIR/.dummy-curr ]; do
       curr=$(cat $currFile)
       if online; then
         if [ ${curr#-} -ge ${ampFactor:-$ampFactor_} ]; then

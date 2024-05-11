@@ -16,14 +16,17 @@ idle_discharging() {
 not_charging() {
 
   local i=
-  local sti=${_STI:-15} # switch test iterations
+  local j=
+  local sw=
+  local _STI=${_STI:-15} # switch test iterations
   local switch=${flip-}; flip=
   local curThen=$(cat $curThen)
   local idleThreshold=${idleThreshold:-40}
   local battStatusOverride="${battStatusOverride-}"
   local battStatusWorkaround=${battStatusWorkaround-}
+  local wsLog=$dataDir/logs/working-switches.log
 
-  [[ "${chargingSwitch[$*]-}" = *\ -- ]] || battStatusOverride=
+  [[ "${chargingSwitch[*]-}" = *\ -- ]] || battStatusOverride=
 
   case "$currFile" in
     */current_now|*/?attery?verage?urrent) [ ${ampFactor:-$ampFactor_} -eq 1000 ] || idleThreshold=${idleThreshold}000;;
@@ -31,15 +34,33 @@ not_charging() {
   esac
 
   if [ -z "${battStatusOverride-}" ] && [ -n "$switch" ]; then
-    for i in $(seq $sti); do
+    for i in $(seq $_STI); do
       if [ "$switch" = off ]; then
-        sti=$((sti - 1))
-        ! status ${1-} || return 0
+        _STI=$((_STI - 1))
+        ! status ${1-} || {
+          sw=$(grep "\[[id]\] ${chargingSwitch[*]}" $wsLog 2>/dev/null || :)
+          while :; do
+            j=$(echo $_status | sed -E 's/^(.).*/\1/; s/I/i/; s/D/d/')
+            if [ -n "$sw" ]; then
+              [[ "$sw" = \[$j\]* ]] || { sed -i "\|${chargingSwitch[*]}|d" $wsLog; sw=; continue; }
+            else
+              printf "[$j] ${chargingSwitch[*]}" >> $wsLog
+              case "${chargingSwitch[*]}" in
+                *current*) echo " {mcc}";;
+                *control_limit_max*|*siop_level*|*temp_level*) echo " {tl}";;
+                *voltage*) echo " {mcv}";;
+                *) echo;;
+              esac >> $wsLog
+            fi
+            break
+          done
+          return 0
+        }
       else
         status ${1-} || return 1
       fi
       [ ! -f $TMPDIR/.nowrite ] || { rm $TMPDIR/.nowrite 2>/dev/null || :; break; }
-      [ $i = $sti ] || sleep 1
+      [ $i = $_STI ] || sleep 1
     done
     [ "$switch" = on ] || return 1
   else
@@ -126,7 +147,7 @@ status() {
         if [ $_status = Idle ]; then
           [ $i -eq $iti ] || sleep 1
         else
-          [ $sti -eq 0 ] || return1=true
+          [ $_STI -eq 0 ] || return1=true
           break
         fi
       done

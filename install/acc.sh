@@ -498,6 +498,10 @@ case "${1-}" in
     set_prop_ --charging_switch:
   ;;
 
+  -ss::)
+    sort $dataDir/logs/working-switches.log | nl -s ") " -w 2 -v 1
+  ;;
+
   -sv)
     shift
     set_prop_ --voltage "$@"

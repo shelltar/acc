@@ -85,6 +85,10 @@ set_prop() {
       return 0
     ;;
 
+    -ss::|--charging*witch::)
+      sort $dataDir/logs/working-switches.log | nl -s ") " -w 2 -v 1
+    ;;
+
     # set charging current
     c|--current)
       set_ch_curr ${2-}
