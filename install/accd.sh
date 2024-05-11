@@ -115,7 +115,7 @@ if ! $_INIT; then
     if [[ "$exitCode" = [127] ]]; then
       . $execDir/logf.sh
       logf --export
-      notif "⚠️ Exit $exitCode; log: \"acc -l tail\""
+      notif "⚠️ Exit $exitCode; log: acc -l tail"
     fi
     cd /
     echo versionCode=$versionCode
