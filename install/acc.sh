@@ -593,6 +593,8 @@ case "${1-}" in
       }
       swCount=1
       swTotal=$(wc -l ${1-$TMPDIR/ch-switches} | cut -d ' ' -f 1)
+      sort -u $TMPDIR/ch-switches > $TMPDIR/ch-switches_
+      mv -f $TMPDIR/ch-switches_ $TMPDIR/ch-switches
       while read _chargingSwitch; do
         echo "x$_chargingSwitch" | grep -Eq '^x$|^x#' && continue
         [ -f "$(echo "$_chargingSwitch" | cut -d ' ' -f 1)" ] && {

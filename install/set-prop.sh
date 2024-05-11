@@ -64,7 +64,7 @@ set_prop() {
       PS3="$(print_choice_prompt)"
       print_ss_
       . $execDir/select.sh
-      select_ charging_switch $(print_auto; cat $TMPDIR/ch-switches; print_exit)
+      select_ charging_switch $(print_auto; sort -u $TMPDIR/ch-switches; print_exit)
       [ ${charging_switch:-x} != $(print_exit) ] || exit 0
       [ ${charging_switch:-x} != $(print_auto) ] || charging_switch=
       case "${charging_switch:-x}" in
@@ -81,7 +81,7 @@ set_prop() {
 
     # print switches
     s:|--charging*witch:)
-      cat $TMPDIR/ch-switches
+      sort -u $TMPDIR/ch-switches
       return 0
     ;;
 
