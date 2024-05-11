@@ -64,9 +64,10 @@ case "$@" in
     daemon_ctrl ${2-}
   ;;
 
-  # print battery uevent data
+  # print charging info
   -i*|--info*)
     . $config
+    . $execDir/android.sh
     . $execDir/batt-interface.sh
     . $execDir/batt-info.sh
     batt_info "${2-}" | grep -v '^$' 2>/dev/null || :

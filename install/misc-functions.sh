@@ -319,13 +319,6 @@ invalid_switch() {
 }
 
 
-is_android() {
-  [ ! -d /data/usbmsc_mnt/ ] && [ -x /system/bin/dumpsys ] \
-    && [[ "$(readlink -f $execDir)" != *com.termux* ]] \
-    && pgrep -f zygote >/dev/null
-}
-
-
 log_on() {
   if [ -f ${log:-//} ]; then
     if [[ $log = */accd-* ]]; then
@@ -463,19 +456,7 @@ device=$(getprop ro.product.device | grep .. || getprop ro.build.product)
 
 cd /sys/class/power_supply/
 . $execDir/batt-interface.sh
-
-# cmd battery and dumpsys wrappers
-if is_android; then
-  cmd_batt() { /system/bin/cmd battery "$@" < /dev/null 2>/dev/null || :; }
-  dumpsys() { /system/bin/dumpsys "$@" 2>/dev/null || :; }
-else
-  cmd_batt() { :; }
-  dumpsys() { :; }
-  ! ${isAccd:-false} || {
-    chgStatusCode=0
-    dischgStatusCode=0
-  }
-fi
+. $execDir/android.sh
 
 # load plugins
 mkdir -p ${execDir}-data/plugins $TMPDIR/plugins

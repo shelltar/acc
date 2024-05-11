@@ -27,31 +27,16 @@ batt_info() {
   }
 
 
+  not_charging || :
+
+
   # raw battery info from the kernel's battery interface
   info="$(
     { grep . $battCapacity $battStatus $currFile $temp $voltNow 2>/dev/null || :; } \
-      | sed "s|.*/||; s/:/ /; s/^batt_vol/voltage_now/; s/^batt_temp/temp/" | sort
+      | sed "s|.*/||; s/:/ /; s/^batt_vol/voltage_now/; s/^batt_temp/temp/;
+        s/^status .*/status $_status/; s/batteryaveragecurrent/current_now/;
+        s/^capacity .*/level $(batt_cap)%/; s/^temp .*/temp $(($(cat $temp) / 10))℃/" | sort
   )"
-
-
-  # determine the correct charging status
-  not_charging || :
-  info="$(echo "$info" | sed "s/^status .*/status $_status/")"
-
-
-  # because MediaTek is weird
-  [ ! -d /proc/mtk_battery_cmd ] || {
-    echo "$info" | grep '^current_now ' > /dev/null \
-      || info="${info/batteryaveragecurrent/current_now}"
-  }
-
-
-  # append %
-  info="$(echo "$info" | sed -E "s/^capacity (.*)/level \1%/")"
-
-
-  # convert temp to ℃
-  info="$(echo "$info" | sed "s/^temp .*/temp $(($(cat $temp) / 10))℃/")"
 
 
   # parse CURRENT_NOW & convert to Amps

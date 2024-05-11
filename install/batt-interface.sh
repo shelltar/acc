@@ -236,7 +236,7 @@ fi
 
 [ -f $curThen ] || echo null > $curThen
 
-bat_cap() {
+batt_cap() {
   local l=$(cmd_batt get level)
   local l2=$(cat $battCapacity)
   [[ -n "$l" && $l -ne $l2 ]] && echo $l || echo $l2
