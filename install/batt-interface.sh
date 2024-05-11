@@ -105,14 +105,16 @@ status() {
 
   local i=
   local return1=false
+  local csw2=${chargingSwitch[2]}
   local iti=${_ITI:-3} # idle test iterations
   local curNow=$(cat $currFile)
 
   _status=$(read_status)
 
   if [ -n "${battStatusOverride-}" ]; then
+    [[ ${chargingSwitch[2]} != */* ]] || csw2="$(cat ${chargingSwitch[2]})"
     if  eq "$battStatusOverride" "Discharging|Idle"; then
-      [ $(cat ${chargingSwitch[0]}) != ${chargingSwitch[2]} ] || _status=$battStatusOverride
+      [ "$(cat ${chargingSwitch[0]})" != "$csw2" ] || _status=$battStatusOverride
     else
       _status=$(set -eu; eval '$battStatusOverride') || :
     fi
