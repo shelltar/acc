@@ -555,7 +555,7 @@ case "${1-}" in
     not_charging && enable_charging > /dev/null
 
     not_charging && {
-      print_wait_plug
+      print_unplugged
       while not_charging; do
         sleep 1
         set +x

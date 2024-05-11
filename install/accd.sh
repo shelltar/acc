@@ -115,7 +115,7 @@ if ! $_INIT; then
     if [[ "$exitCode" = [127] ]]; then
       . $execDir/logf.sh
       logf --export
-      notif "⚠️ accd stopped (error $exitCode!); log: \"acc -l tail\""
+      notif "⚠️ Exit $exitCode; log: \"acc -l tail\""
     fi
     cd /
     echo versionCode=$versionCode
@@ -136,7 +136,7 @@ if ! $_INIT; then
       unsolicitedResumes=0
     else
       isCharging=true
-      # [auto mode] change the charging switch if charging has not been enabled by acc (if behavior repeats 3 times)
+      # [auto mode] change the charging switch if charging has not been enabled by acc (if behavior repeats 3 times in a row)
       if $chDisabledByAcc && [ -n "${chargingSwitch[0]-}" ] && [[ "${chargingSwitch[*]}" != *\ -- ]] \
         && sleep ${loopDelay[1]} && { ! not_charging || { isCharging=false; false; }; }
       then
@@ -439,12 +439,6 @@ if ! $_INIT; then
       . $config
     done
     set -x
-  }
-
-
-  sdp() {
-    _DPOL=$1
-    echo _DPOL=$1 >> $TMPDIR/.batt-interface.sh
   }
 
 

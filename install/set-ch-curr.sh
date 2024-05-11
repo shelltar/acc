@@ -22,7 +22,7 @@ set_ch_curr() {
     if not_charging; then
       ! $verbose || {
         print_read_curr
-        print_wait_plug
+        print_unplugged
         echo
       }
       set +x

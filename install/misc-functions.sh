@@ -272,6 +272,15 @@ enable_charging() {
 }
 
 
+# condensed "case...esac"
+eq() {
+  eval "case \"$1\" in
+    $2) return 0;;
+  esac"
+  return 1
+}
+
+
 flip_sw() {
 
   flip=$1
@@ -364,17 +373,9 @@ GPLv3+"
 }
 
 
-print_wait_plug() {
-  print_unplugged
-}
-
-
-# condensed "case...esac"
-eq() {
-  eval "case \"$1\" in
-    $2) return 0;;
-  esac"
-  return 1
+sdp() {
+  _DPOL=$1
+  echo _DPOL=$1 >> $TMPDIR/.batt-interface.sh
 }
 
 
@@ -387,7 +388,7 @@ unset_switch() {
 wait_plug() {
   $isAccd || {
     echo "ghostCharging=true"
-    print_wait_plug
+    print_unplugged
   }
   while ! online; do
     sleep ${loopDelay[1]}
