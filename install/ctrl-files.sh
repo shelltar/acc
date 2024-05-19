@@ -51,6 +51,7 @@ battery/input_suspend 0 1 /proc/mtk_battery_cmd/en_power_path 1 1
 /proc/driver/charger_limit_enable 0 1 /proc/driver/charger_limit 100 5
 /proc/mtk_battery_cmd/current_cmd 0::0 0::1
 /proc/mtk_battery_cmd/current_cmd 0::0 0::1 /proc/mtk_battery_cmd/en_power_path 1 0
+/sys/class/qcom-battery/batt_protect_en 0 1
 /sys/class/qcom-battery/night_charging 0 1
 /sys/module/lge_battery/parameters/charge_stop_level 100 battery/capacity battery/input_suspend 0 0
 /sys/module/lge_battery/parameters/charge_stop_level 100 5 battery/input_suspend 0 0

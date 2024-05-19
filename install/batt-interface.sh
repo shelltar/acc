@@ -127,7 +127,7 @@ status() {
   local i=
   local return1=false
   local csw2=${chargingSwitch[2]-}
-  local iti=${_ITI:-3} # idle test iterations
+  local _ITI=${_ITI:-3} # idle test iterations
   local curNow=$(cat $currFile)
 
   _status=$(read_status)
@@ -141,11 +141,11 @@ status() {
     fi
   elif $battStatusWorkaround; then
     if [ "$switch" = off ] && { [ -n "${exitCode_-}" ] || ${cyclingSw:-false}; }; then
-      for i in $(seq $iti); do
+      for i in $(seq $_ITI); do
         curNow=$(cat $currFile)
         idle_discharging
         if [ $_status = Idle ]; then
-          [ $i -eq $iti ] || sleep 1
+          [ $i -eq $_ITI ] || sleep 1
         else
           [ $_STI -eq 0 ] || return1=true
           break
@@ -211,7 +211,7 @@ if ${_INIT:-false}; then
 
   echo 0 > $TMPDIR/.dummy-curr
 
-  for currFile in battery/current_now $batt/current_now bms/current_now battery/?attery?verage?urrent \
+  for currFile in rt*-charger/current_now battery/current_now $batt/current_now bms/current_now battery/?attery?verage?urrent \
     /sys/devices/platform/battery/power_supply/battery/?attery?verage?urrent \
     ${battStatus%/*}/current_now $TMPDIR/.dummy-curr
   do

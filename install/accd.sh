@@ -188,7 +188,7 @@ if ! $_INIT; then
           && { [ -z "${maxChargingCurrent[1]-}" ] || [[ "${maxChargingCurrent[1]-}" = -* ]]; } \
           && grep -q / $TMPDIR/ch-curr-ctrl-files 2>/dev/null
         then
-          $TMPDIR/acca $config --set max_charging_current=${maxChargingCurrent[0]}
+          $TMPDIR/acca $config --set max_charging_current=${maxChargingCurrent[0]} || :
         fi
       else
         # parse charging current ctrl files
@@ -200,7 +200,7 @@ if ! $_INIT; then
         && { [ -z "${maxChargingVoltage[1]-}" ] || [[ "${maxChargingCurrent[1]-}" = -* ]]; } \
         && grep -q / $TMPDIR/ch-volt-ctrl-files 2>/dev/null
       then
-        $TMPDIR/acca $config --set max_charging_voltage=${maxChargingVoltage[0]}
+        $TMPDIR/acca $config --set max_charging_voltage=${maxChargingVoltage[0]} || :
       fi
 
       $cooldown || {
@@ -421,7 +421,7 @@ if ! $_INIT; then
     while [ -z "${_DPOL-}" ] && $battStatusWorkaround && [ $currFile != $TMPDIR/.dummy-curr ]; do
       curr=$(cat $currFile)
       if online; then
-        if [ ${curr#-} -ge ${ampFactor:-$ampFactor_} ]; then
+        if [ $(cat $battStatus) = Charging ]; then
           if [ $curr -gt 0 ]; then
             sdp -
           elif [ $curr -lt 0 ]; then
