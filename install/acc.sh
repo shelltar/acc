@@ -519,7 +519,7 @@ case "${1-}" in
     exitCode_=10
     exitCode=$exitCode_
     logF_=$dataDir/logs/acc-t_output-${device}.log
-    logF=/sdcard/Download/acc-t_output-${device}_$(date +%Y-%m-%d_%H:%M:%S).log
+    logF=/sdcard/Download/acc-t_output-${device}_$(date +%Y-%m-%d_%H-%M-%S).log
 
     shift
     print_wait

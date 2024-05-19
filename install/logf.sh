@@ -1,6 +1,6 @@
 logf() {
 
-  local date=$(date +%Y-%m-%d_%H:%M:%S)
+  local date=$(date +%Y-%m-%d_%H-%M-%S)
 
   if [[ "${1:-x}" = -*e* ]]; then
 
