@@ -1107,12 +1107,8 @@ body .markdown-body
 <li><a href="#uninstalling-acc">Uninstalling ACC</a></li>
 <li><a href="#initializing-acc">Initializing ACC</a></li>
 <li><a href="#managing-acc">Managing ACC</a></li>
-<li><a href="#the-output-of---info">The Output of &ndash;info</a></li>
-<li><a href="#profiles">Profiles</a></li>
-<li><a href="#more">More</a></li>
 <li><a href="#troubleshooting">TROUBLESHOOTING</a></li>
 <li><a href="#acc--t-results-seem-inconsistent"><code>acc -t</code> Results Seem Inconsistent</a></li>
-<li><a href="#battery-capacity--level-doesnt-seem-right">Battery Capacity (% Level) Doesn&rsquo;t Seem Right</a></li>
 <li><a href="#charging-switch">Charging Switch</a></li>
 <li><a href="#custom-max-charging-voltage-and-current-limits">Custom Max Charging Voltage And Current Limits</a></li>
 <li><a href="#diagnosticslogs">Diagnostics/Logs</a></li>
@@ -1299,7 +1295,7 @@ In interactive mode, it also asks the user whether they want to download and ins
 <h2 id="default-configuration">DEFAULT CONFIGURATION<a class="headerlink" href="#default-configuration" title="Permanent link"></a></h2>
 <div class="highlight"><pre>#DC#
 
-configVerCode=202405040
+configVerCode=202405180
 
 allowIdleAbovePcap=true
 ampFactor=
@@ -1388,23 +1384,28 @@ runCmdOnPause=&#39;&#39;
 #   at 2:14 acc --notif 2:14 AM now\!
 #   at 22:30 acc -n 22:30 now\!
 
+# batt_cap   print battery level
+
 # calc &lt;operation...&gt;   float  calculator
 
 # set_temp_level &lt;0-100&gt;   refer to temp_level (tl) below
 
-# $(voltage_now)   prints the instantaneous charging voltage
+# voltage_now   prints the instantaneous charging voltage
 
 
 
 # INTERNAL VARIABLES
 
+# $_DPOL  discharge polarity (+|-)
+# $_status   Charging|Discharging|Idle
+# $_STI   switch test iterations (default: 15)
 # $batt   expands to the /sys/class/power_supply/battery (or equivalent) directory
 # $battCapacity   $batt/capacity file
 # $battStatus   $batt/status file
 # $currFile   current_now file
+# $idleThreshold   mA absolute value to consider charging status=Idle (default: 40)
 # $temp   temperature reporting file
 # ${isAccd:-false}   true|false (whether accd in running)
-# _$status   Charging|Discharging|Idle
 
 
 
@@ -2088,19 +2089,19 @@ Those override the permanent.</p>
 <h3 id="basics">Basics<a class="headerlink" href="#basics" title="Permanent link"></a></h3>
 <p>ACC does not require KernelSU/Magisk.
 Any root solution works, as long as busybox is installed.</p>
-<p>Use <code>/dev/.vr25/acc/acca</code> instead of regular <code>acc</code>.
+<p>Use <code>/dev/acca</code> instead of regular <code>acc</code>.
 It&rsquo;s optimized for front-ends, guaranteed to be readily available after installation/upgrades and significantly faster than its <code>acc</code> counterpart.
-<code>acca --set prop1=bla prop2="bla bla" ...</code> runs asynchronously (non-blocking mode) - meaning, multiple instances of it work in parallel.</p>
+Additionally, <code>/dev/acca --set prop1=bla prop2="bla bla" ...</code> runs asynchronously (non-blocking mode) - meaning, multiple instances of it work in parallel.</p>
 <p>It may be best to use long options over short equivalents - e.g., <code>--set charging_switch=</code> instead of <code>-s s=</code>.
 This makes code more readable (less cryptic).</p>
-<p>Include provided descriptions of ACC features/settings in your app(s).
+<p>Include provided descriptions of ACC features/settings in your front-end.
 Provide additional information (trusted) where appropriate.
-Explain settings/concepts as clearly and with as few words as possible.</p>
+Explain settings/concepts as clearly and as concisely as possible.</p>
 <p>Take advantage of acc exit codes.
 Refer back to <code>SETUP/USAGE &gt; [Terminal Commands](#terminal-commands) &gt; Exit Codes</code>.</p>
 <h3 id="installingupgrading-acc">Installing/Upgrading ACC<a class="headerlink" href="#installingupgrading-acc" title="Permanent link"></a></h3>
 <p>This should be trivial.
-The simplest way is flashing acc from a KernelSU/Magisk module manager.</p>
+The simplest way is flashing acc from KernelSU/Magisk module manager.</p>
 <p>Alternatively, <code>install.sh</code>, <code>install-online.sh</code> or <code>install-tarball.sh</code> can be used.
 For details, refer back to <a href="#install-from-local-source-or-github">install from local source or GitHub</a>.</p>
 <p>Developers can also use the <em>updateJSON</em> API.
@@ -2122,72 +2123,37 @@ The format is as follows:</p>
 <p>Either run <code>/dev/.vr25/acc/uninstall</code> (no reboot required) or uninstall from KernelSU/Magisk module manager and reboot.</p>
 <h3 id="initializing-acc">Initializing ACC<a class="headerlink" href="#initializing-acc" title="Permanent link"></a></h3>
 <p>On <code>boot_completed</code> receiver and <code>main activity</code>, run:</p>
-<p><code>test -f /dev/.vr25/acc/acca || /data/adb/vr25/acc/service.sh</code></p>
+<p><code>test -f /dev/acca || /data/adb/vr25/acc/service.sh</code></p>
 <p>Explanation:</p>
 <p>ACC&rsquo;s working environment must be initialized - i.e., by updating the stock charging config (for restoring without a reboot) and pre-processing data for greater efficiency.
 This is done exactly once after boot.
 If it were done only after installation/upgrade, one would have to reinstall/upgrade acc after every kernel update.
 That&rsquo;s because kernel updates often change the default power supply drivers&rsquo; settings.</p>
-<p>Since acc&rsquo;s core executables are dynamic ([expected to] change regularly), those are linked to <code>/dev/.vr25/acc/</code> to preserve the APIs.
+<p>Since acc&rsquo;s core executables are dynamic ([expected to] change regularly), those are linked to <code>/dev/</code> to preserve the APIs.
 The links must be recreated once after boot (since <code>/dev/</code> is volatile).</p>
 <p><code>accd</code> is a symbolic link to <code>service.sh</code>.
-If service.sh is executed every time the <code>main activity</code> is launched, accd will be repeatedly restarted for no reason. Thus, we run <code>test -f /dev/.vr25/acc/acca || /data/adb/vr25/acc/service.sh</code>, as opposed to just <code>/data/adb/vr25/acc/service.sh</code></p>
+If service.sh is executed every time the <code>main activity</code> is launched, accd will be repeatedly restarted for no reason.
+Thus, we run <code>test -f /dev/acca || /data/adb/vr25/acc/service.sh</code>, as opposed to just <code>/data/adb/vr25/acc/service.sh</code></p>
 <p>Notes</p>
 <ul>
 <li>This &ldquo;manual&rdquo; initialization is only <em>strictly</em> required for non KernelSU/Magisk installs &ndash; and only once per boot session. In other words, KernelSU and Magisk already run <code>service.sh</code> shortly after boot.</li>
 <li>ACC&rsquo;s installer always initializes it.</li>
 </ul>
 <h3 id="managing-acc">Managing ACC<a class="headerlink" href="#managing-acc" title="Permanent link"></a></h3>
-<p>As already stated, front-ends should use the executable <code>/dev/.vr25/acc/acca</code>.
+<p>As already stated, front-ends shall use the executable <code>/dev/acca</code>.
 Refer to the <a href="#default-configuration">default configuration</a> and <a href="#terminal-commands">terminal commands</a> sections above.</p>
-<p>The default config reference has a section entitled variable aliases/shortcuts.
-Use ONLY those with <code>/dev/.vr25/acc/acca --set</code>!</p>
-<p>To clarify, <code>/dev/.vr25/acc/acca --set chargingSwitch=...</code> is not supported!
+<p>The default config reference has a section entitled &ldquo;aliases&rdquo;.
+Use ONLY those with <code>/dev/acca --set</code>!
+i.e., <code>/dev/acca --set chargingSwitch=...</code> is not supported!
 Use either <code>s</code> or <code>charging_switch</code>.
 <code>chargingSwitch</code> and all the other &ldquo;camelcase&rdquo; style variables are for internal use only (i.e., private APIs).</p>
 <p>Do not parse the config file directly.
 Use <code>--set --print ['regex']</code> and <code>--set --print-default ['regex']</code>.
 Refer back to <a href="#terminal-commands">terminal commands</a> for details.</p>
-<h3 id="the-output-of-info">The Output of &ndash;info<a class="headerlink" href="#the-output-of-info" title="Permanent link"></a></h3>
-<p>It comes from the kernel, not acc itself.
-Some kernels provide more information than others.</p>
-<p>Most of the lines are either unnecessary (e.g., type: everyone knows that already) or unreliable (e.g., health, speed).</p>
-<p>Here&rsquo;s what one should focus on:
-<div class="highlight"><pre>HEALTH=Good # Battery health
-CAPACITY=50 # Battery level, 0-100
-CURRENT_NOW=0 # Charging current (Amps)
-POWER_NOW=0 # (CURRENT_NOW * VOLTAGE_NOW) (Watts)
-STATUS=Charging # Charging, Discharging or Idle (Not charging)
-TEMP=281 # Always in (ºC * 10)
-VOLTAGE_NOW=3.861 # Charging voltage (Volts)
-</pre></div>
-Note: the power information refers to what is actually supplied to the battery, not what&rsquo;s coming from the adapter.
-External power is always converted before it reaches the battery.</p>
-<h3 id="profiles">Profiles<a class="headerlink" href="#profiles" title="Permanent link"></a></h3>
-<p>Those are simply different config files.
-A config path can be supplied as first argument to <code>acca</code> and second to <code>accd</code> executables.</p>
-<p>Examples:</p>
-<p><em>Copy the config:</em></p>
-<p>Current config: <code>/dev/.vr25/acc/acca --config cat &gt; /path/to/new/file</code></p>
-<p>Default config: <code>/dev/.vr25/acc/acca /path/to/new/file --version</code> (<code>--version</code> can be replaced with any option + arguments, as seen below.)</p>
-<p><em>Edit the copy:</em></p>
-<p><code>/dev/.vr25/acc/acca /path/to/new/file --set pause_capacity=75 resume_capacity=70</code> (if the file does not exist, it is created as a copy of the default config.)</p>
-<p><em>Use the copy:</em></p>
-<p><code>/dev/.vr25/acc/accd --init /path/to/new/file</code> (the daemon is restarted with the new config.)</p>
-<p><em>Back to the main config:</em></p>
-<p><code>/dev/.vr25/acc/accd --init</code></p>
-<h3 id="more">More<a class="headerlink" href="#more" title="Permanent link"></a></h3>
-<p>ACC daemon does not have to be restarted after making changes to the config.
-It picks up new changes within seconds.</p>
 <hr />
 <h2 id="troubleshooting">TROUBLESHOOTING<a class="headerlink" href="#troubleshooting" title="Permanent link"></a></h2>
 <h3 id="acc-t-results-are-inconsistent">acc -t Results Are Inconsistent<a class="headerlink" href="#acc-t-results-are-inconsistent" title="Permanent link"></a></h3>
 <p>Refer to &ldquo;default config &gt; batt_status_workaround&rdquo;.</p>
-<h3 id="battery-capacity-level-doesnt-seem-right">Battery Capacity (% Level) Doesn&rsquo;t Seem Right<a class="headerlink" href="#battery-capacity-level-doesnt-seem-right" title="Permanent link"></a></h3>
-<p>When Android&rsquo;s battery level differs from that of the kernel, ACC daemon automatically syncs it by stopping the battery service and feeding it the real value every few seconds.</p>
-<p>Some Pixel devices are known for having battery level discrepancies.</p>
-<p>If your device shuts down before the battery is actually empty, <code>capacity_sync</code> or <code>capacity_mask</code> may help.
-Refer to the <a href="#default-configuration">default configuration</a> section above for details.</p>
 <h3 id="charging-switch">Charging Switch<a class="headerlink" href="#charging-switch" title="Permanent link"></a></h3>
 <p>By default, ACC uses whichever <a href="https://github.com/VR-25/acc/blob/dev/install/ctrl-files.sh">charging switch</a> works (&ldquo;automatic&rdquo; mode).
 However, things don&rsquo;t always go well.</p>
@@ -2218,7 +2184,7 @@ Here&rsquo;s how to do it:</p>
 <li>Run <code>acc -ss</code> to enforce a working switch.</li>
 <li>Test the reliability of the set switch. If it doesn&rsquo;t work properly, try another.</li>
 </ol>
-<p>Since not everyone is tech savvy, ACC daemon automatically applies settings for certain devices to minimize charging switch issues.
+<p>Since not everyone is tech savvy, ACC daemon automatically applies settings for certain devices for greater compatibility.
 These are in <code>acc/oem-custom.sh</code>.</p>
 <h3 id="custom-max-charging-voltage-and-current-limits">Custom Max Charging Voltage And Current Limits<a class="headerlink" href="#custom-max-charging-voltage-and-current-limits" title="Permanent link"></a></h3>
 <p>Unfortunately, not all kernels support these features.
@@ -2241,7 +2207,7 @@ These are simply ignored.</p>
 Refer to the <a href="#default-configuration">default configuration</a> section for details.</p>
 <p>One can override the default lists of max charging current/voltage control files by copying <code>acc/ctrl-files.sh</code> to <code>/data/adb/vr25/acc-data/plugins/</code> and modifying it accordingly.
 Note that default limits must be restored prior to that to avoid the need for a system reboot.
-Reminder: a daemon restart is required to load new/modified plugins.</p>
+Reminder: A daemon restart is required to load new/modified plugins.</p>
 <h3 id="diagnosticslogs">Diagnostics/Logs<a class="headerlink" href="#diagnosticslogs" title="Permanent link"></a></h3>
 <p>Volatile logs (gone on reboot) are stored in <code>/dev/.vr25/acc/</code> (<code>.log</code> files only).
 Persistent logs reside in <code>/data/adb/vr25/acc-data/logs/</code>.</p>

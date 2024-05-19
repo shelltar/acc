@@ -26,12 +26,8 @@
   - [Uninstalling ACC](#uninstalling-acc)
   - [Initializing ACC](#initializing-acc)
   - [Managing ACC](#managing-acc)
-  - [The Output of --info](#the-output-of---info)
-  - [Profiles](#profiles)
-  - [More](#more)
 - [TROUBLESHOOTING](#troubleshooting)
   - [`acc -t` Results Seem Inconsistent](#acc--t-results-seem-inconsistent)
-  - [Battery Capacity (% Level) Doesn't Seem Right](#battery-capacity--level-doesnt-seem-right)
   - [Charging Switch](#charging-switch)
   - [Custom Max Charging Voltage And Current Limits](#custom-max-charging-voltage-and-current-limits)
   - [Diagnostics/Logs](#diagnosticslogs)
@@ -237,7 +233,7 @@ In interactive mode, it also asks the user whether they want to download and ins
 ```
 #DC#
 
-configVerCode=202405040
+configVerCode=202405180
 
 allowIdleAbovePcap=true
 ampFactor=
@@ -326,23 +322,28 @@ runCmdOnPause=''
 #   at 2:14 acc --notif 2:14 AM now\!
 #   at 22:30 acc -n 22:30 now\!
 
+# batt_cap   print battery level
+
 # calc <operation...>   float  calculator
 
 # set_temp_level <0-100>   refer to temp_level (tl) below
 
-# $(voltage_now)   prints the instantaneous charging voltage
+# voltage_now   prints the instantaneous charging voltage
 
 
 
 # INTERNAL VARIABLES
 
+# $_DPOL  discharge polarity (+|-)
+# $_status   Charging|Discharging|Idle
+# $_STI   switch test iterations (default: 15)
 # $batt   expands to the /sys/class/power_supply/battery (or equivalent) directory
 # $battCapacity   $batt/capacity file
 # $battStatus   $batt/status file
 # $currFile   current_now file
+# $idleThreshold   mA absolute value to consider charging status=Idle (default: 40)
 # $temp   temperature reporting file
 # ${isAccd:-false}   true|false (whether accd in running)
-# _$status   Charging|Discharging|Idle
 
 
 
@@ -1044,16 +1045,16 @@ An alternative to plugins are one-line scripts. Refer to the [default configurat
 ACC does not require KernelSU/Magisk.
 Any root solution works, as long as busybox is installed.
 
-Use `/dev/.vr25/acc/acca` instead of regular `acc`.
+Use `/dev/acca` instead of regular `acc`.
 It's optimized for front-ends, guaranteed to be readily available after installation/upgrades and significantly faster than its `acc` counterpart.
-`acca --set prop1=bla prop2="bla bla" ...` runs asynchronously (non-blocking mode) - meaning, multiple instances of it work in parallel.
+Additionally, `/dev/acca --set prop1=bla prop2="bla bla" ...` runs asynchronously (non-blocking mode) - meaning, multiple instances of it work in parallel.
 
 It may be best to use long options over short equivalents - e.g., `--set charging_switch=` instead of `-s s=`.
 This makes code more readable (less cryptic).
 
-Include provided descriptions of ACC features/settings in your app(s).
+Include provided descriptions of ACC features/settings in your front-end.
 Provide additional information (trusted) where appropriate.
-Explain settings/concepts as clearly and with as few words as possible.
+Explain settings/concepts as clearly and as concisely as possible.
 
 Take advantage of acc exit codes.
 Refer back to `SETUP/USAGE > [Terminal Commands](#terminal-commands) > Exit Codes`.
@@ -1062,7 +1063,7 @@ Refer back to `SETUP/USAGE > [Terminal Commands](#terminal-commands) > Exit Code
 ### Installing/Upgrading ACC
 
 This should be trivial.
-The simplest way is flashing acc from a KernelSU/Magisk module manager.
+The simplest way is flashing acc from KernelSU/Magisk module manager.
 
 Alternatively, `install.sh`, `install-online.sh` or `install-tarball.sh` can be used.
 For details, refer back to [install from local source or GitHub](#install-from-local-source-or-github).
@@ -1093,7 +1094,7 @@ Either run `/dev/.vr25/acc/uninstall` (no reboot required) or uninstall from Ker
 
 On `boot_completed` receiver and `main activity`, run:
 
-`test -f /dev/.vr25/acc/acca || /data/adb/vr25/acc/service.sh`
+`test -f /dev/acca || /data/adb/vr25/acc/service.sh`
 
 Explanation:
 
@@ -1102,11 +1103,12 @@ This is done exactly once after boot.
 If it were done only after installation/upgrade, one would have to reinstall/upgrade acc after every kernel update.
 That's because kernel updates often change the default power supply drivers' settings.
 
-Since acc's core executables are dynamic ([expected to] change regularly), those are linked to `/dev/.vr25/acc/` to preserve the APIs.
+Since acc's core executables are dynamic ([expected to] change regularly), those are linked to `/dev/` to preserve the APIs.
 The links must be recreated once after boot (since `/dev/` is volatile).
 
 `accd` is a symbolic link to `service.sh`.
-If service.sh is executed every time the `main activity` is launched, accd will be repeatedly restarted for no reason. Thus, we run `test -f /dev/.vr25/acc/acca || /data/adb/vr25/acc/service.sh`, as opposed to just `/data/adb/vr25/acc/service.sh`
+If service.sh is executed every time the `main activity` is launched, accd will be repeatedly restarted for no reason.
+Thus, we run `test -f /dev/acca || /data/adb/vr25/acc/service.sh`, as opposed to just `/data/adb/vr25/acc/service.sh`
 
 
 Notes
@@ -1117,72 +1119,18 @@ Notes
 
 ### Managing ACC
 
-As already stated, front-ends should use the executable `/dev/.vr25/acc/acca`.
+As already stated, front-ends shall use the executable `/dev/acca`.
 Refer to the [default configuration](#default-configuration) and [terminal commands](#terminal-commands) sections above.
 
-The default config reference has a section entitled variable aliases/shortcuts.
-Use ONLY those with `/dev/.vr25/acc/acca --set`!
-
-To clarify, `/dev/.vr25/acc/acca --set chargingSwitch=...` is not supported!
+The default config reference has a section entitled "aliases".
+Use ONLY those with `/dev/acca --set`!
+i.e., `/dev/acca --set chargingSwitch=...` is not supported!
 Use either `s` or `charging_switch`.
 `chargingSwitch` and all the other "camelcase" style variables are for internal use only (i.e., private APIs).
 
 Do not parse the config file directly.
 Use `--set --print ['regex']` and `--set --print-default ['regex']`.
 Refer back to [terminal commands](#terminal-commands) for details.
-
-
-### The Output of --info
-
-It comes from the kernel, not acc itself.
-Some kernels provide more information than others.
-
-Most of the lines are either unnecessary (e.g., type: everyone knows that already) or unreliable (e.g., health, speed).
-
-Here's what one should focus on:
-```
-HEALTH=Good # Battery health
-CAPACITY=50 # Battery level, 0-100
-CURRENT_NOW=0 # Charging current (Amps)
-POWER_NOW=0 # (CURRENT_NOW * VOLTAGE_NOW) (Watts)
-STATUS=Charging # Charging, Discharging or Idle (Not charging)
-TEMP=281 # Always in (ºC * 10)
-VOLTAGE_NOW=3.861 # Charging voltage (Volts)
-```
-Note: the power information refers to what is actually supplied to the battery, not what's coming from the adapter.
-External power is always converted before it reaches the battery.
-
-
-### Profiles
-
-Those are simply different config files.
-A config path can be supplied as first argument to `acca` and second to `accd` executables.
-
-Examples:
-
-_Copy the config:_
-
-Current config: `/dev/.vr25/acc/acca --config cat > /path/to/new/file`
-
-Default config: `/dev/.vr25/acc/acca /path/to/new/file --version` (`--version` can be replaced with any option + arguments, as seen below.)
-
-_Edit the copy:_
-
-`/dev/.vr25/acc/acca /path/to/new/file --set pause_capacity=75 resume_capacity=70` (if the file does not exist, it is created as a copy of the default config.)
-
-_Use the copy:_
-
-`/dev/.vr25/acc/accd --init /path/to/new/file` (the daemon is restarted with the new config.)
-
-_Back to the main config:_
-
-`/dev/.vr25/acc/accd --init`
-
-
-### More
-
-ACC daemon does not have to be restarted after making changes to the config.
-It picks up new changes within seconds.
 
 
 ---
@@ -1192,16 +1140,6 @@ It picks up new changes within seconds.
 ### acc -t Results Are Inconsistent
 
 Refer to "default config > batt_status_workaround".
-
-
-### Battery Capacity (% Level) Doesn't Seem Right
-
-When Android's battery level differs from that of the kernel, ACC daemon automatically syncs it by stopping the battery service and feeding it the real value every few seconds.
-
-Some Pixel devices are known for having battery level discrepancies.
-
-If your device shuts down before the battery is actually empty, `capacity_sync` or `capacity_mask` may help.
-Refer to the [default configuration](#default-configuration) section above for details.
 
 
 ### Charging Switch
@@ -1229,7 +1167,7 @@ Here's how to do it:
 2. Run `acc -ss` to enforce a working switch.
 3. Test the reliability of the set switch. If it doesn't work properly, try another.
 
-Since not everyone is tech savvy, ACC daemon automatically applies settings for certain devices to minimize charging switch issues.
+Since not everyone is tech savvy, ACC daemon automatically applies settings for certain devices for greater compatibility.
 These are in `acc/oem-custom.sh`.
 
 
@@ -1262,7 +1200,7 @@ Refer to the [default configuration](#default-configuration) section for details
 
 One can override the default lists of max charging current/voltage control files by copying `acc/ctrl-files.sh` to `/data/adb/vr25/acc-data/plugins/` and modifying it accordingly.
 Note that default limits must be restored prior to that to avoid the need for a system reboot.
-Reminder: a daemon restart is required to load new/modified plugins.
+Reminder: A daemon restart is required to load new/modified plugins.
 
 
 ### Diagnostics/Logs
