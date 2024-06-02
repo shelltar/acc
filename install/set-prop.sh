@@ -12,6 +12,7 @@ print_ss_() {
 set_prop() {
 
   local restartDaemon=false
+  local line=
   local two=
 
   case ${1-} in
@@ -119,8 +120,13 @@ set_prop() {
     # print current config (full)
     *)
       if [ -f "${1:-//}" ]; then
-        cat "$1" >> $config
-        $TMPDIR/acca $config --set dummy=
+        cat $config > $TMPDIR/.tmp
+        grep -Ev '^:|=""$' "$1" >> $TMPDIR/.tmp
+        grep '^:' "$1" | while IFS= read -r line; do
+          $TMPDIR/acca $TMPDIR/.tmp --config a "$line"
+        done
+        $TMPDIR/acca $TMPDIR/.tmp --set dummy=
+        cat $TMPDIR/.tmp > $config
       else
         . $execDir/print-config.sh | more
         return 0
