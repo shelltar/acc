@@ -114,7 +114,7 @@ if [ bin/${id}_flashable_uninstaller.zip -ot install/uninstall.sh ] || [ ! -f bi
   echo "=> bin/${id}_flashable_uninstaller.zip"
   rm -rf bin/${id}_flashable_uninstaller.zip $tmpDir 2>/dev/null
   mkdir -p bin $tmpDir
-  cp install/uninstall.sh $tmpDir/update-binary
+  sed 's|#!/system/bin/sh|#!/sbin/sh|' install/uninstall.sh > $tmpDir/update-binary
   echo "#MAGISK" > $tmpDir/updater-script
   (cd .tmp
   zip -r9 ../bin/${id}_flashable_uninstaller.zip * \

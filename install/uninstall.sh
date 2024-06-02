@@ -1,4 +1,4 @@
-#!/sbin/sh
+#!/system/bin/sh
 # $id uninstaller
 # id is set/corrected by build.sh
 # Copyright 2019-2024, VR25
