@@ -1,7 +1,7 @@
 set_ch_volt() {
 
   local f=$TMPDIR/.volt-default
-  local verbose=${verbose:-true}
+  local isAccd=${isAccd:-false}
 
   ! [[ -f $f && .${1-} = .- ]] || return 0
 
@@ -14,15 +14,8 @@ set_ch_volt() {
       apply_on_boot ${*-})
     }
 
-    ${verbose:-true} || {
-      exxit() { exit $?; }
-      . $execDir/misc-functions.sh
-    }
-
-    ! ${isAccd:-false} || verbose=false
-
     grep -q / $TMPDIR/ch-volt-ctrl-files 2>/dev/null || {
-      ! $verbose || print_no_ctrl_file v
+      $isAccd || print_no_ctrl_file v
       return 0
     }
 
@@ -30,7 +23,7 @@ set_ch_volt() {
     if [ $1 = - ]; then
       apply_on_boot_ default force
       max_charging_voltage=
-      ! ${verbose:-true} || print_volt_restored
+      $isAccd || print_volt_restored
       touch $f
 
     else
@@ -39,7 +32,7 @@ set_ch_volt() {
           && unset max_charging_voltage mcv \
           && apply_on_boot_ \
           && {
-            ! ${verbose:-true} || print_volt_set $1
+            $isAccd || print_volt_set $1
           } || return 1
       }
 
@@ -49,12 +42,12 @@ set_ch_volt() {
 
       # < 3700 millivolts
       elif [ $1 -lt 3700 ]; then
-        ! ${verbose:-true} || echo "[3700-4300]$(print_mV; print_only)"
+        $isAccd || echo "[3700-4300]$(print_mV; print_only)"
         apply_voltage 3700 ${2-} || return 1
 
       # > 4300 millivolts
       elif [ $1 -gt 4300 ]; then
-        ! ${verbose:-true} || echo "[3700-4300]$(print_mV; print_only)"
+        $isAccd || echo "[3700-4300]$(print_mV; print_only)"
         apply_voltage 4300 ${2-} || return 1
       fi
       rm $f 2>/dev/null || :
@@ -62,7 +55,7 @@ set_ch_volt() {
 
   else
     # print current value
-    ! ${verbose:-true} && echo ${maxChargingVoltage[0]-} \
+    $isAccd && echo ${maxChargingVoltage[0]-} \
       || echo "${maxChargingVoltage[0]:-$(print_default)}$(print_mV)"
     return 0
   fi

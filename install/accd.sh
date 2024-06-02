@@ -188,7 +188,8 @@ if ! $_INIT; then
           && { [ -z "${maxChargingCurrent[1]-}" ] || [[ "${maxChargingCurrent[1]-}" = -* ]]; } \
           && grep -q / $TMPDIR/ch-curr-ctrl-files 2>/dev/null
         then
-          $TMPDIR/acca $config --set max_charging_current=${maxChargingCurrent[0]} || :
+          set_ch_curr ${maxChargingCurrent[0]} || :
+          . $execDir/write-config.sh
         fi
       else
         # parse charging current ctrl files
@@ -200,7 +201,8 @@ if ! $_INIT; then
         && { [ -z "${maxChargingVoltage[1]-}" ] || [[ "${maxChargingCurrent[1]-}" = -* ]]; } \
         && grep -q / $TMPDIR/ch-volt-ctrl-files 2>/dev/null
       then
-        $TMPDIR/acca $config --set max_charging_voltage=${maxChargingVoltage[0]} || :
+        set_ch_volt ${maxChargingVoltage[0]} || :
+        . $execDir/write-config.sh
       fi
 
       $cooldown || {
