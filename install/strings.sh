@@ -423,7 +423,7 @@ print_export_logs() {
 }
 
 print_1shot() {
-  echo "Charge once to a given capacity (default: 100%), without restrictions"
+  echo "Charge once to a given level (default: 100%), without restrictions; you can append -s ... for other settings"
 }
 
 print_charge_once() {

@@ -940,7 +940,7 @@ The format is as follows:
 
 ### Uninstalling ACC
 
-Either run `/dev/.vr25/acc/uninstall` (no reboot required; **charger must be plugged**) or uninstall from Magisk manager and reboot.
+Either run `/data/adb/vr25/acc/uninstall.sh` (no reboot required; **charger must be plugged**) or uninstall from Magisk manager and reboot.
 
 
 ### Initializing ACC

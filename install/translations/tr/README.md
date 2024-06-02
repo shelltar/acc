@@ -936,7 +936,7 @@ The format is as follows:
 
 ### ACC Kaldırma
 
-`/dev/.vr25/acc/uninstall` dosyasını çalıştırın (yeniden başlatmaya gerek yok; **şarj kablosu takılı olmalı**) veya Magisk üzerinden kaldırıp cihazı yeniden başlatın.
+`/data/adb/vr25/acc/uninstall.sh` dosyasını çalıştırın (yeniden başlatmaya gerek yok; **şarj kablosu takılı olmalı**) veya Magisk üzerinden kaldırıp cihazı yeniden başlatın.
 
 
 ### ACC Başlatma

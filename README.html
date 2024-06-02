@@ -1267,7 +1267,12 @@ For upgrades, if <code>%parent install dir%</code> is not supplied, the original
 <p><code>sh install-tarball.sh [module id, default: acc] [parent install dir (e.g., /data/data/mattecarra.accapp/files)]</code> installs the tarball (<code>acc*gz</code>) from the script&rsquo;s location.
 The archive must be in the same directory as this script - and obtained from GitHub: <a href="https://github.com/VR-25/acc/archive/$commit.tar.gz">https://github.com/VR-25/acc/archive/$commit.tar.gz</a> (<code>$commit</code> examples: <code>master</code>, <code>dev</code>, <code>v2020.5.20-rc</code>).</p>
 </li>
+<li>
+<p>One can also use a single command to download and install acc:</p>
+</li>
 </ul>
+<p><code>curl -sSL https://raw.githubusercontent.com/VR-25/acc/dev/install-online.sh | /system/bin/sh -s dev</code></p>
+<p><code>wget -qO- https://raw.githubusercontent.com/VR-25/acc/dev/install-online.sh | /system/bin/sh -s dev</code></p>
 <h4 id="notes_2">Notes<a class="headerlink" href="#notes_2" title="Permanent link"></a></h4>
 <ul>
 <li>
@@ -2120,7 +2125,7 @@ The format is as follows:</p>
 </pre></div>
 
 <h3 id="uninstalling-acc">Uninstalling ACC<a class="headerlink" href="#uninstalling-acc" title="Permanent link"></a></h3>
-<p>Either run <code>/dev/.vr25/acc/uninstall</code> (no reboot required) or uninstall from KernelSU/Magisk module manager and reboot.</p>
+<p>Either run <code>/data/adb/vr25/acc/uninstall.sh</code> (no reboot required) or uninstall from KernelSU/Magisk module manager and reboot.</p>
 <h3 id="initializing-acc">Initializing ACC<a class="headerlink" href="#initializing-acc" title="Permanent link"></a></h3>
 <p>On <code>boot_completed</code> receiver and <code>main activity</code>, run:</p>
 <p><code>test -f /dev/acca || /data/adb/vr25/acc/service.sh</code></p>

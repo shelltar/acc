@@ -210,6 +210,12 @@ For upgrades, if `%parent install dir%` is not supplied, the original/current is
 - `sh install-tarball.sh [module id, default: acc] [parent install dir (e.g., /data/data/mattecarra.accapp/files)]` installs the tarball (`acc*gz`) from the script's location.
 The archive must be in the same directory as this script - and obtained from GitHub: https://github.com/VR-25/acc/archive/$commit.tar.gz (`$commit` examples: `master`, `dev`, `v2020.5.20-rc`).
 
+- One can also use a single command to download and install acc:
+
+`curl -sSL https://raw.githubusercontent.com/VR-25/acc/dev/install-online.sh | /system/bin/sh -s dev`
+
+`wget -qO- https://raw.githubusercontent.com/VR-25/acc/dev/install-online.sh | /system/bin/sh -s dev`
+
 
 #### Notes
 
@@ -1087,7 +1093,7 @@ The format is as follows:
 
 ### Uninstalling ACC
 
-Either run `/dev/.vr25/acc/uninstall` (no reboot required) or uninstall from KernelSU/Magisk module manager and reboot.
+Either run `/data/adb/vr25/acc/uninstall.sh` (no reboot required) or uninstall from KernelSU/Magisk module manager and reboot.
 
 
 ### Initializing ACC
