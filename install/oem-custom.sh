@@ -8,9 +8,9 @@ if (set +x; . $config) >/dev/null 2>&1; then
   defaultConfVer=0$(cat $TMPDIR/.config-ver)
   [ $configVer -eq $defaultConfVer ] || {
     # if [ $configVer -lt 202404070 ]; then
-    #   $TMPDIR/acca --set thermal_suspend=
+    #   $TMPDIR/acca $config --set thermal_suspend=
     # else
-      $TMPDIR/acca --set dummy=
+      $TMPDIR/acca $config --set dummy=
     # fi
   }
 else
@@ -24,14 +24,6 @@ fi
 # battery idle mode for Google Pixel 2/XL and devices with similar hardware
 ! _grep '^chargingSwitch=./sys/module/lge_battery/parameters/charge_stop_level' \
   || loopCmd='[ $(cat battery/input_suspend) != 1 ] || echo 0 > battery/input_suspend'
-
-# battery idle mode for certain mtk devices
-# ! _grep '^chargingSwitch=.battery/input_suspend 0 1 /proc/mtk_battery_cmd/en_power_path 1 1' \
-#   || loopCmd='
-#     if [ $(cat /proc/mtk_battery_cmd/en_power_path) -eq 0 ] && [ $(cat battery/status) = Discharging ]; then
-#       echo 0 > battery/input_suspend
-#     fi
-#   '
 
 # idle mode - sony xperia
 echo 1 > battery_ext/smart_charging_activation 2>/dev/null || :
@@ -47,11 +39,11 @@ echo 1 > battery_ext/smart_charging_activation 2>/dev/null || :
   }
 }
 
-# set batt_slate_mode as default charging control file for Exynos/Samsung devices
-# this prevents the "battery level stuck at 70%" issue
-! _grep '^battery/batt_slate_mode 0 1' $TMPDIR/ch-switches \
-  || [ -n "$(_get_prop chargingSwitch)" ] \
-  || _set_prop chargingSwitch "(battery/batt_slate_mode 0 1)"
+# msm8937 reports wrong current; disable current-based status detection
+[ .$(getprop ro.product.board) != .msm8937 ] || {
+  [ .$(_get_prop battStatusWorkaround) = .false ] \
+    || $TMPDIR/acca $config --set batt_status_workaround=false
+}
 
 unset -f _grep _get_prop _set_prop
 unset configVer defaultConfVer

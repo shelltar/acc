@@ -702,7 +702,7 @@ else
   # start $id daemon
   rm $TMPDIR/.ghost-charging 2>/dev/null
   if [ -f $TMPDIR/.install-notes ]; then
-    $TMPDIR/acca --notif "$(cat $TMPDIR/.install-notes)"
+    $TMPDIR/acca $config --notif "$(cat $TMPDIR/.install-notes)"
     mv -f $TMPDIR/.install-notes $TMPDIR/.updated
   fi 2>/dev/null
   exec $0 $args

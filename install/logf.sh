@@ -14,7 +14,7 @@ logf() {
     dmesg > dmesg.log
     logcat -d *:D > logcat.log
     $execDir/power-supply-logger.sh
-    { parse_switches 2>/dev/null || $TMPDIR/acca --parse; } > acc-p.txt
+    { parse_switches 2>/dev/null || $TMPDIR/acca $config --parse; } > acc-p.txt
 
     { ln -f ../ch-switches charging-switches.txt
     ln -f ../oem-custom oem-custom.txt
