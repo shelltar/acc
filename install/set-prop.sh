@@ -117,9 +117,9 @@ set_prop() {
       unset IFS
     ;;
 
-    # print current config (full)
     *)
       if [ -f "${1:-//}" ]; then
+        # import config
         cat $config > $TMPDIR/.tmp
         grep -Ev '^:|=""$' "$1" >> $TMPDIR/.tmp
         grep '^:' "$1" | while IFS= read -r line; do
@@ -127,7 +127,10 @@ set_prop() {
         done
         $TMPDIR/acca $TMPDIR/.tmp --set dummy=
         cat $TMPDIR/.tmp > $config
+        echo "✅"
+        return 0
       else
+        # print current config (full)
         . $execDir/print-config.sh | more
         return 0
       fi
