@@ -77,7 +77,7 @@ at() {
 
 
 calc() {
-  awk "BEGIN {print $*}" | tr , .
+  awk "BEGIN {print $*}" | tr , . | sed -E 's/0+$//; s/\.$//'
 }
 
 
@@ -324,13 +324,9 @@ invalid_switch() {
 
 
 log_on() {
-  if [ -f ${log:-//} ]; then
-    if [[ $log = */accd-* ]]; then
-      set -x
-    else
-      set -x 2>>$log
-    fi
-  fi
+  [ ! -f ${log:-//} ] || {
+    [[ $log = */accd-* ]] && set -x || set -x 2>>$log
+  }
 }
 
 

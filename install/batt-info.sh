@@ -12,7 +12,7 @@ batt_info() {
 
   # calculator
   calc2() {
-    awk "BEGIN {print $*}" | tr , . | xargs printf %.2f
+    awk "BEGIN {print $*}" | tr , . | xargs printf %.2f | sed -E 's/0+$//; s/\.$//'
   }
 
 
