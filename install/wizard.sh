@@ -52,7 +52,6 @@ z) $(print_exit)
 
     4)
       $TMPDIR/accd
-      sleep 1
       exec wizard
     ;;
 
@@ -76,20 +75,23 @@ z) $(print_exit)
       print_1shot
       echo
       echo
-      echo -n "%? "
+      echo -n "> "
       read level
       clear
-      $TMPDIR/acc --full ${level-}
-      exit $?
+      exec $TMPDIR/acc --full ${level-}
+      unset level
+      print_press_key
+      read -n 1
+      exec wizard
     ;;
 
     8)
       set +eu
       print_uninstall
-      echo yes/no
+      echo "> yes/no: "
       read ans
       [ .$ans = .yes ] || exec wizard
-      . $execDir/uninstall.sh
+      exec $execDir/uninstall.sh
     ;;
 
     9)
@@ -132,11 +134,19 @@ z) $(print_exit)
 
     e)
       . $execDir/batt-info.sh
-      batt_info | more
+      batt_info
+      echo
+      print_press_key
+      read -n 1
+      exec wizard
     ;;
 
     f)
-      rollback
+      rollback -v
+      echo "> yes/no: "
+      read ans
+      [ .$ans != .yes ] || rollback
+      exec $TMPDIR/acc
     ;;
 
     z)
@@ -145,7 +155,7 @@ z) $(print_exit)
 
     *)
       print_wip
-      sleep 2
+      sleep 1
       exec wizard
     ;;
   esac

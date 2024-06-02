@@ -599,7 +599,6 @@ else
   ln -fs $execDir/${id}.sh $TMPDIR/${id}d.
   ln -fs $execDir/${id}a.sh $TMPDIR/${id}a
   ln -fs $execDir/service.sh $TMPDIR/${id}d
-  ln -fs $execDir/uninstall.sh $TMPDIR/uninstall
 
   if [ -d /sbin ]; then
     if grep -q '^tmpfs / ' /proc/mounts; then
