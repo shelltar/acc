@@ -539,6 +539,7 @@ case "${1-}" in
     config=$TMPDIR/.config
 
     exxit() {
+      rm $TMPDIR/.testingsw
       if [ -n "$parsed" ]; then
         cat $TMPDIR/ch-switches $_parsed 2>/dev/null > $parsed \
           && sort -u $parsed | sed 's/ $//; /^$/d' > $TMPDIR/ch-switches
@@ -555,6 +556,7 @@ case "${1-}" in
     }
 
     set +e
+    touch $TMPDIR/.testingsw
     trap exxit EXIT
     not_charging && enable_charging > /dev/null
 

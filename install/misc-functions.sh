@@ -87,6 +87,8 @@ cycle_switches() {
   local off=
   local cyclingSw=true
 
+  touch $TMPDIR/.testingsw
+
   while read -A chargingSwitch; do
 
     [ ! -f ${chargingSwitch[0]:-//} ] || {
@@ -112,6 +114,8 @@ cycle_switches() {
       fi
     }
   done < $TMPDIR/ch-switches
+
+  rm $TMPDIR/.testingsw
 }
 
 

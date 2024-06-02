@@ -547,6 +547,7 @@ if ! $_INIT; then
 
   apply_on_boot
   touch $TMPDIR/.minCapMax
+  rm $TMPDIR/.testingsw 2>/dev/null || :
   ctrl_charging
   exit $?
 
