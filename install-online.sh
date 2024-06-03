@@ -94,7 +94,7 @@ onlineVersion=$(_curl https://raw.githubusercontent.com/VR-25/$id/${commit}/modu
 
 [ -f $PWD/${0##*/} ] || cd $(readlink -f ${0%/*})
 [ -z "${reference-}" ] || cd /dev/.$domain/$id
-rm -rf "./${id}-${commit}/" 2>/dev/null || :
+rm -rf "./${id}-*/" 2>/dev/null || :
 
 
 if [ ${installedVersion:-0} -lt ${onlineVersion:-0} ] \
@@ -123,7 +123,7 @@ then
   trap - EXIT
   echo
   _curl $tarball | tar -xz \
-    && ash ${id}-${commit}/install.sh
+    && ash ${id}-*/install.sh
 
 else
   echo
@@ -133,5 +133,5 @@ fi
 
 
 set -eu
-rm -rf "./${id}-${commit}/" 2>/dev/null
+rm -rf "./${id}-*/" 2>/dev/null
 exit 0
