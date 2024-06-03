@@ -47,7 +47,7 @@ not_charging() {
             else
               printf "[$j] $chargingSwitch" >> $wsLog
               case "$chargingSwitch" in
-                *current*) echo " {mcc}";;
+                *current*) [[ "$$chargingSwitch" = *current_cmd* ]] || echo " {mcc}";;
                 *control_limit_max*|*siop_level*|*temp_level*) echo " {tl}";;
                 *voltage*) echo " {mcv}";;
                 *) echo;;
