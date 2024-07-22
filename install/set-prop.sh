@@ -121,8 +121,8 @@ set_prop() {
       if [ -f "${1:-//}" ]; then
         # import config
         cat $config > $TMPDIR/.tmp
-        grep -Ev '^:|=""$' "$1" >> $TMPDIR/.tmp
-        grep '^:' "$1" | while IFS= read -r line; do
+        dos2unix < "$1" | grep -Ev '^:|=""$' >> $TMPDIR/.tmp
+        dos2unix < "$1" | grep '^:' | while IFS= read -r line; do
           $TMPDIR/acca $TMPDIR/.tmp --config a "$line"
         done
         $TMPDIR/acca $TMPDIR/.tmp --set dummy=

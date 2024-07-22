@@ -77,7 +77,7 @@ at() {
 
 
 calc() {
-  awk "BEGIN {print $*}" | tr , . | sed -E 's/0+$//; s/\.$//'
+  awk "BEGIN {print $*}" | tr , .
 }
 
 

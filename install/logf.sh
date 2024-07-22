@@ -26,7 +26,7 @@ logf() {
     done
 
     ln -sf $dataDir/logs/* ./ 2>/dev/null
-    grep -Ev '^#|^$' $config_ > ./config.txt
+    cat $config_ > ./config.txt
     set +x
 
     . $execDir/batt-info.sh

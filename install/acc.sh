@@ -171,7 +171,7 @@ exxit() {
   set +eux
   ! ${noEcho:-false} && ${verbose:-true} && echo
   [[ "$exitCode" = [05689] ]] || {
-     eq "$exitCode" "[127]|10" && logf --export
+    eq "$exitCode" "[127]|10" && logf --export
     echo
   }
   cd /
