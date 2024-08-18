@@ -464,8 +464,7 @@ case "${1-}" in
   ;;
 
   -R|--resetbs)
-    dumpsys batterystats --reset
-    rm -rf /data/system/battery*stats* 2>/dev/null || :
+    resetbs
     echo "✅"
   ;;
 

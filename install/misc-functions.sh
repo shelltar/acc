@@ -366,6 +366,18 @@ GPLv3+"
 }
 
 
+resetbs() {
+  is_android || return 0
+  (set +e
+  dumpsys batterystats --reset
+  rm -rf /data/system/battery*stats*
+  dumpsys battery set ac 1
+  dumpsys battery set level 100
+  sleep 2
+  dumpsys battery reset) &>/dev/null || :
+}
+
+
 sdp() {
   _DPOL=$1
   echo _DPOL=$1 >> $TMPDIR/.batt-interface.sh

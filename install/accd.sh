@@ -210,8 +210,7 @@ if ! $_INIT; then
         if $resetBattStatsOnPlug && ${resetBattStats[2]}; then
           sleep ${loopDelay[0]}
           not_charging || {
-            dumpsys batterystats --reset < /dev/null > /dev/null
-            rm /data/system/batterystats* || :
+            resetbs
             resetBattStatsOnPlug=false
           } 2>/dev/null
         fi
@@ -250,8 +249,7 @@ if ! $_INIT; then
         if $resetBattStatsOnUnplug && ${resetBattStats[1]}; then
           sleep ${loopDelay[1]}
           ! not_charging Discharging || {
-            dumpsys batterystats --reset < /dev/null > /dev/null
-            rm /data/system/batterystats* || :
+            resetbs
             resetBattStatsOnUnplug=false
           } 2>/dev/null
         fi
@@ -311,8 +309,7 @@ if ! $_INIT; then
           fi
           ! ${resetBattStats[0]} || {
             # reset battery stats on pause
-            dumpsys batterystats --reset < /dev/null > /dev/null
-            rm /data/system/batterystats* 2>/dev/null || :
+            resetbs
           }
           sleep ${loopDelay[1]}
           rm $TMPDIR/.minCapMax 2>/dev/null || :
