@@ -1,5 +1,5 @@
 name: Build flashable zip
-on: [push]
+on: [workflow_dispatch]
 
 jobs:
   build:
